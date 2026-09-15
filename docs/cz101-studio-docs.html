@@ -1,0 +1,1479 @@
+<title>CZ-101 Studio Handbook</title>
+<meta name="description" content="CZ-101 Studio: documentação e créditos / documentation and credits">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root {
+  --ground: #eceef0;
+  --surface: #f8f9fa;
+  --ink: #1d2024;
+  --muted: #59606a;
+  --rule: #cdd3d9;
+  --accent: #2f7fb0;
+  --accent-soft: #d9e8f2;
+  --beige: #ddd7b6;
+  --beige-ink: #2c2a1c;
+  --led-off: #6b2a22;
+  --led-on: #e23b24;
+  --code-ground: #e2e5e8;
+  --display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #1c1d20;
+    --surface: #26282c;
+    --ink: #e6e7e3;
+    --muted: #a2a8af;
+    --rule: #3a3d42;
+    --accent: #5aa7d8;
+    --accent-soft: #1f3342;
+    --beige: #b9b28c;
+    --beige-ink: #1d1c14;
+    --led-off: #4a1f1a;
+    --led-on: #ff5a40;
+    --code-ground: #303236;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #1c1d20;
+  --surface: #26282c;
+  --ink: #e6e7e3;
+  --muted: #a2a8af;
+  --rule: #3a3d42;
+  --accent: #5aa7d8;
+  --accent-soft: #1f3342;
+  --beige: #b9b28c;
+  --beige-ink: #1d1c14;
+  --led-off: #4a1f1a;
+  --led-on: #ff5a40;
+  --code-ground: #303236;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 400 16px/1.65 var(--body);
+  padding-inline: 20px;
+}
+
+.masthead {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-block: 28px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 32px;
+  border-bottom: 3px solid var(--accent);
+}
+.brand { display: grid; gap: 2px; }
+.brand .eyebrow {
+  font: 600 13px/1 var(--display);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.brand h1 {
+  margin: 0;
+  font: 700 clamp(34px, 5vw, 52px)/1 var(--display);
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+.brand h1 span { color: var(--accent); }
+
+.lang-switch { display: flex; gap: 12px; }
+.lang-switch button {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--muted);
+  font: 600 12px/1 var(--display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.lang-switch .led {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--led-off);
+}
+.lang-switch .cap {
+  display: block;
+  min-width: 58px;
+  padding: 9px 12px 8px;
+  border-radius: 3px;
+  background: var(--beige);
+  color: var(--beige-ink);
+  font: 700 15px/1 var(--display);
+  letter-spacing: 0.08em;
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.18);
+}
+.lang-switch button[aria-pressed="true"] { color: var(--ink); }
+.lang-switch button[aria-pressed="true"] .led { background: var(--led-on); box-shadow: 0 0 6px var(--led-on); }
+.lang-switch button[aria-pressed="true"] .cap { box-shadow: inset 0 2px 0 rgb(0 0 0 / 0.22); transform: translateY(1px); }
+.lang-switch button:focus-visible .cap { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.layout {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-block: 32px 72px;
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 48px;
+}
+.toc { position: sticky; top: 20px; align-self: start; max-height: calc(100vh - 40px); overflow-y: auto; }
+.toc p {
+  margin: 0 0 10px;
+  font: 600 13px/1 var(--display);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; border-left: 1px solid var(--rule); }
+.toc a {
+  display: block;
+  padding: 5px 0 5px 14px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.toc a:hover, .toc a:focus-visible { color: var(--ink); border-left-color: var(--accent); outline: none; }
+
+article { min-width: 0; max-width: 76ch; }
+article > p:first-child { font-size: 18px; color: var(--ink); }
+article h2 {
+  margin: 56px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+  font: 700 30px/1.1 var(--display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  scroll-margin-top: 16px;
+}
+article h2:first-of-type { margin-top: 36px; }
+article h3 {
+  margin: 34px 0 10px;
+  font: 600 21px/1.2 var(--display);
+  letter-spacing: 0.03em;
+  color: var(--accent);
+  text-wrap: balance;
+}
+article p, article li { max-width: 68ch; }
+article ul { padding-left: 1.2em; display: grid; gap: 4px; }
+article a { color: var(--accent); text-underline-offset: 2px; }
+article strong { font-weight: 600; }
+
+code {
+  font: 500 0.88em/1 var(--mono);
+  background: var(--code-ground);
+  padding: 2px 5px;
+  border-radius: 3px;
+  overflow-wrap: anywhere;
+}
+pre {
+  margin: 18px 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 2px;
+  font: 400 13px/1.55 var(--mono);
+}
+pre code { background: none; padding: 0; font: inherit; overflow-wrap: normal; }
+
+.table-wrap { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--rule); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.45; font-variant-numeric: tabular-nums; }
+th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--accent-soft);
+  font: 600 14px/1.2 var(--display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+td { padding: 9px 12px; border-top: 1px solid var(--rule); vertical-align: top; }
+td code { white-space: nowrap; }
+
+.foot {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-block: 18px 32px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; gap: 12px; padding-block: 20px 56px; }
+  .toc { position: static; max-height: none; }
+  .toc ol { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); border-left: 0; }
+  .toc a { border-left: 0; padding-left: 0; }
+  article h2 { font-size: 26px; }
+}
+</style>
+
+<header class="masthead">
+  <div class="brand">
+    <span class="eyebrow" data-lang="pt">Documentação do projeto</span>
+    <span class="eyebrow" data-lang="en" hidden>Project documentation</span>
+    <h1>CZ-101 <span>Studio</span></h1>
+  </div>
+  <div class="lang-switch" role="group" aria-label="Idioma / Language">
+    <button type="button" id="lang-pt" data-set-lang="pt" aria-pressed="true"><span class="led"></span><span class="cap">PT</span>Português</button>
+    <button type="button" id="lang-en" data-set-lang="en" aria-pressed="false"><span class="led"></span><span class="cap">EN</span>English</button>
+  </div>
+</header>
+
+<div class="layout" data-lang="pt">
+  <nav class="toc" aria-label="Sumário"><p>Sumário</p><ol><li><a href="#pt-visão-geral">Visão geral</a></li>
+<li><a href="#pt-arquitetura">Arquitetura</a></li>
+<li><a href="#pt-linha-do-tempo-do-trabalho">Linha do tempo do trabalho</a></li>
+<li><a href="#pt-bugs-e-limitações-corrigidos">Bugs e limitações corrigidos</a></li>
+<li><a href="#pt-soluções-técnicas">Soluções técnicas</a></li>
+<li><a href="#pt-estrutura-de-pastas-versão-personal">Estrutura de pastas (versão Personal)</a></li>
+<li><a href="#pt-como-compilar-e-usar">Como compilar e usar</a></li>
+<li><a href="#pt-limitações-conhecidas">Limitações conhecidas</a></li>
+<li><a href="#pt-créditos">Créditos</a></li>
+<li><a href="#pt-aviso-legal">Aviso legal</a></li></ol></nav>
+  <article lang="pt-BR"><p>Emulação do sintetizador Casio CZ-101 (1984) como aplicativo e plugin para macOS, construída sobre o MAME 0.289 embarcado do projeto Vintage Emulator Studio. Uso pessoal, não comercial.</p>
+<p>Período: setembro de 2026. Plataforma: macOS em Apple Silicon (arm64).</p>
+<h2 id="pt-visão-geral">Visão geral</h2>
+<p>O objetivo foi ter <strong>uma unidade por instrumento</strong> em vez de um emulador com dezenas de máquinas: um programa que só roda o CZ-101, recebe MIDI, toca pela placa de som e serve de base para melhorar a interface e a fidelidade sonora.</p>
+<p>O trabalho resultou em dois projetos irmãos:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Projeto</th>
+<th>Pasta</th>
+<th>Papel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CZ-101 Studio</td>
+<td><code>/Volumes/STORAGE/GITS/CZ101Studio</code></td>
+<td>Versão de desenvolvimento: Standalone, lê as ROMs de uma pasta, painel recarregável sem recompilar.</td>
+</tr>
+<tr>
+<td>CZ-101 Studio Personal</td>
+<td><code>/Volumes/STORAGE/GITS/CZ101Studio-Personal</code></td>
+<td>Versão para tocar: ROMs, painel e scripts embutidos no binário; Standalone, AU e VST3; librarian de timbres por SysEx; 13 cartuchos RA-3 com 208 timbres.</td>
+</tr>
+</tbody>
+</table></div>
+<p>A emulação do instrumento é inteiramente do MAME: o firmware original da Casio roda no processador NEC uPD7810 emulado, o som sai do chip Casio uPD933 emulado e o display é o controlador Hitachi HD44780 emulado. Os projetos fazem a ponte entre o MAME, o áudio/MIDI do macOS e a interface.</p>
+<h2 id="pt-arquitetura">Arquitetura</h2>
+<pre><code> MIDI (interface, DAW ou teclado do painel)
+        │
+        ▼
+ CZ101Processor (JUCE) ── filtra clock/active sensing, pausa durante o librarian
+        │ sendMidiBytes
+        ▼
+ EmbeddedEmulatorEngine (thread do MAME)
+   ├─ driver cz101: uPD7810 + firmware Casio, uPD933 (som), HD44780 (LCD), RA-3
+   ├─ porta MIDI IN  ◄── fila de bytes
+   ├─ porta MIDI OUT ──► fila de bytes ──► MidiByteAssembler (host) ou librarian
+   ├─ áudio (blocos de 20 ms) ──► fila ──► AudioJitterBuffer ──► placa / DAW
+   ├─ vídeo (layout renderizado) ──► MameDisplay (painel clicável)
+   └─ NVRAM (memória interna) ──► arquivo, ao sair / após escrita / a cada 30 s
+</code></pre>
+<p>Pontos centrais:</p>
+<ul>
+<li><strong>O MAME não é recompilado.</strong> Os projetos linkam as bibliotecas estáticas e o objeto do driver (<code>cz101.o</code>) já compilados na árvore do VES. A lista de drivers do motor foi reduzida a <code>cz101</code>.</li>
+<li><strong>Motor embarcado.</strong> O <code>EmbeddedEmulatorEngine</code> do VES foi copiado para cada projeto e estendido: saída MIDI, gravação de NVRAM a pedido e opção de salvar a NVRAM.</li>
+<li><strong>Build.</strong> CMake + Ninja + JUCE 8.0.13. O código que inclui cabeçalhos do MAME é compilado numa biblioteca de objetos própria com exatamente os mesmos defines da <code>libemu.a</code>.</li>
+</ul>
+<h2 id="pt-linha-do-tempo-do-trabalho">Linha do tempo do trabalho</h2>
+<h3 id="pt-1-primeira-unidade-cz-101-studio">1. Primeira unidade: CZ-101 Studio</h3>
+<ul>
+<li>Projeto JUCE novo com o motor do VES, lista de drivers só com <code>cz101</code> e NVRAM persistente.</li>
+<li>Link direto contra as bibliotecas do MAME já compiladas (sem rebuild do MAME).</li>
+<li>Primeira janela com o layout interno do MAME, luz de MIDI, VU e teclado na tela (depois removido a pedido).</li>
+</ul>
+<h3 id="pt-2-ruído-de-buffer">2. Ruído de buffer</h3>
+<ul>
+<li>Com buffer de 512 amostras o som picotava; com 64 ficava limpo. O mesmo sintoma foi relatado por usuários do VES no fórum KVR Audio.</li>
+<li>Causa medida: o MAME entrega áudio em blocos de 50 Hz (882 quadros a 44,1 kHz a cada 20 ms), e a fila do motor não tinha pré-carga. Um callback de 512 quadros frequentemente encontrava a fila com menos dados e tocava silêncio.</li>
+<li>Solução: <code>AudioJitterBuffer</code> (detalhes na seção de soluções). Resultado medido com buffer de 512: de 4 falhas em 85 s para 0 falhas em 90 s, latência de 24 a 40 ms e zero reamostragem.</li>
+</ul>
+<h3 id="pt-3-permissões-e-pastas-do-macos">3. Permissões e pastas do macOS</h3>
+<ul>
+<li>O macOS pedia acesso à pasta Documentos a cada build (a assinatura ad-hoc muda) e o MAME ficava bloqueado lendo a ROM até a resposta.</li>
+<li>O <code>userApplicationDataDirectory</code> do JUCE aponta para <code>~/Library</code> no macOS, não para <code>Application Support</code>.</li>
+<li>Solução: dados em <code>~/Library/Application Support/CZ101Studio</code>, ROMs fora de Documentos e o caminho de ROMs deixou de ser restaurado do estado salvo pelo JUCE.</li>
+</ul>
+<h3 id="pt-4-painel">4. Painel</h3>
+<ul>
+<li>Desenho vetorial do painel feito pelo usuário no Google Stitch (SVG de 1600 × 500).</li>
+<li><code>tools/make_artwork.py</code> renderiza o SVG com o Google Chrome em modo headless (3200 × 1000) e gera um <code>default.lay</code> do MAME que coloca por cima 51 botões clicáveis, 49 teclas, 35 LEDs e a tela LCD emulada.</li>
+<li>Ajustes: sobreposições de texto corrigidas, ícones de forma de onda redesenhados e centralizados, rótulos abaixo da linha azul, palavras UP/DOWN ao lado da roda de pitch removidas (ficaram só as setas) e janela com proporção fixa do painel.</li>
+</ul>
+<h3 id="pt-5-versão-personal">5. Versão Personal</h3>
+<ul>
+<li>ROMs (<code>cz101.zip</code>, <code>hd44780.zip</code>), painel e scripts Lua do MAME embutidos com <code>juce_add_binary_data</code> e gravados em <code>~/Library/Application Support/CZ101StudioPersonal/runtime</code> na primeira execução.</li>
+<li>Formatos Standalone, AU e VST3; nome e códigos próprios (<code>Wjst</code> / <code>Cz1p</code>).</li>
+<li>Trava de instância: o MAME não é reentrante, então só uma instância toca por processo; as demais aguardam e assumem quando a primeira fecha.</li>
+<li>Instalação: AU copiado para <code>~/Library/Audio/Plug-Ins/Components</code> (o macOS ignora AU por link simbólico); VST3 como link para o disco externo; assinatura ad-hoc de todos os bundles. O AU passou no <code>auval</code> da Apple.</li>
+</ul>
+<h3 id="pt-6-sysex-midi-out-e-memória-interna">6. SysEx, MIDI OUT e memória interna</h3>
+<ul>
+<li>Saída MIDI do CZ-101 emulado ligada ao host (antes era descartada).</li>
+<li>Librarian interno com o handshake original da Casio, porque hosts MIDI descartam o SysEx sem F7 que o protocolo usa.</li>
+<li>Botões <strong>Carregar .syx</strong> e <strong>Salvar .syx</strong> com destino "Área de som" ou "INTERNAL 1–16".</li>
+<li>NVRAM gravada logo após uma carga em INTERNAL, a cada 30 s e ao sair.</li>
+<li>Ferramenta <code>cz101_sysex_test</code> validando tudo contra o firmware real.</li>
+</ul>
+<h3 id="pt-7-codec-de-timbres-e-conversão-de-fichas-pat">7. Codec de timbres e conversão de fichas .PAT</h3>
+<ul>
+<li><code>tools/czsyx.py</code>: decodifica e codifica timbres; reproduz byte a byte os 16 presets de fábrica a partir dos valores de painel.</li>
+<li>Várias informações da documentação pública do formato estavam erradas e foram corrigidas com base no firmware (tabela adiante).</li>
+<li><code>tools/pat2syx.py</code>: converteu 104 de 132 fichas de texto <code>.PAT</code> dos anos 1980/90 em <code>.syx</code>, com relatório.</li>
+</ul>
+<h3 id="pt-8-cartuchos-ra-3">8. Cartuchos RA-3</h3>
+<ul>
+<li>O CZ-101 aceita o cartucho de RAM Casio RA-3, com 16 timbres (CARTRIDGE 1–16). O MAME o emula como um arquivo de 4 KB.</li>
+<li>13 cartuchos montados a partir das pastas de timbres (208 timbres), gravados pelo próprio firmware do CZ-101.</li>
+<li>Seletor <strong>Cartucho</strong> no topo da janela: troca o cartucho com o instrumento ligado; o botão CARTRIDGE do painel toca o cartucho escolhido.</li>
+<li><strong>Carregar .syx</strong> ganhou as posições CARTRIDGE 1–16, com o nome do timbre de cada posição.</li>
+</ul>
+<h2 id="pt-bugs-e-limitações-corrigidos">Bugs e limitações corrigidos</h2>
+<h3 id="pt-em-relação-ao-cz-101-rodando-no-vintage-emulator-studio">Em relação ao CZ-101 rodando no Vintage Emulator Studio</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Problema no VES</th>
+<th>Evidência no código do VES</th>
+<th>Correção no CZ-101 Studio</th>
+<th>Verificação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Picotes/ruído com buffers grandes (512+)</td>
+<td>Fila de áudio sem pré-carga; MAME entrega blocos de 20 ms</td>
+<td><code>AudioJitterBuffer</code> com pré-carga, margem adaptativa e correção de relógio</td>
+<td>0 falhas em 90 s com buffer 512 (antes 4 em 85 s)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Timbres por SysEx não chegam ao sintetizador</td>
+<td><code>isSupportedMidiForPrototype</code> só aceita Note, CC, Program Change e Pitch Bend</td>
+<td>Todo MIDI é repassado ao MAME, exceto clock e active sensing</td>
+<td>Timbre enviado e lido de volta idêntico</td>
+</tr>
+<tr>
+<td>3</td>
+<td>O sintetizador não consegue responder por MIDI</td>
+<td>Porta de saída MIDI do motor com <code>write()</code> vazio</td>
+<td>Fila de saída real, entregue ao host ou ao librarian</td>
+<td>Dump dos 16 presets via MIDI OUT</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Memória interna perdida a cada reinício</td>
+<td>MAME com <code>-nonvram_save</code> e pasta de NVRAM temporária apagada ao iniciar</td>
+<td>NVRAM persistente, gravada ao sair, após escrita interna e a cada 30 s</td>
+<td>Timbre em INTERNAL 1 preservado após reiniciar o motor</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Espera fixa de 10 s para liberar áudio e MIDI</td>
+<td><code>getBootElapsedMs() &lt; 10000</code></td>
+<td>Liberação 2 s após o primeiro quadro de vídeo</td>
+<td>Log: "pronto" 2 a 3 s após iniciar</td>
+</tr>
+</tbody>
+</table></div>
+<p>Também evitado na versão Personal: a partida travada quando falta a ROM de dispositivo <code>hd44780</code> ou quando o macOS bloqueia a leitura da pasta das ROMs, porque as ROMs vêm embutidas.</p>
+<h3 id="pt-em-relação-ao-mame-0289-original">Em relação ao MAME 0.289 original</h3>
+<ul>
+<li><strong>Nenhum bug do driver do CZ-101 foi corrigido.</strong> O driver funciona bem no MAME; o que mudou foi a integração.</li>
+<li><strong>NVRAM protegida contra encerramento anormal.</strong> O MAME só grava a NVRAM ao sair (<code>running_machine::nvram_save()</code> é privado). O motor passou a gravá-la durante a execução, com uma cópia do mesmo procedimento usando apenas a API pública das NVRAMs.</li>
+<li><strong>Painel.</strong> O layout interno do CZ-101 no MAME é esquemático (retângulos e texto); foi substituído por uma arte completa com as mesmas ligações de entrada.</li>
+</ul>
+<h3 id="pt-problemas-de-plataforma-resolvidos">Problemas de plataforma resolvidos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problema</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aviso de acesso a Documentos travando o boot</td>
+<td>ROM lida de pasta protegida; assinatura ad-hoc muda a cada build</td>
+<td>ROMs em Application Support / embutidas</td>
+</tr>
+<tr>
+<td>Dados gravados em <code>~/Library/CZ101Studio</code></td>
+<td><code>userApplicationDataDirectory</code> do JUCE é <code>~/Library</code> no macOS</td>
+<td>Caminho explícito para <code>Application Support</code></td>
+</tr>
+<tr>
+<td>AU não aparece para os hosts</td>
+<td>O registro de Audio Units ignora <code>.component</code> instalado por link simbólico</td>
+<td>AU copiado; VST3 continua como link</td>
+</tr>
+<tr>
+<td>AU recusado pelo registro</td>
+<td>Só o binário assinado pelo linker, recursos não selados</td>
+<td><code>codesign --force --deep --sign -</code> nos bundles</td>
+</tr>
+<tr>
+<td>Librarians externos não funcionam</td>
+<td>JUCE entrega SysEx sem F7 por <code>handlePartialSysexMessage</code>, que o host não repassa</td>
+<td>Librarian dentro do plugin</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="pt-soluções-técnicas">Soluções técnicas</h2>
+<h3 id="pt-audiojitterbuffer">AudioJitterBuffer</h3>
+<p>Fica entre a fila de áudio do MAME e o callback da placa/DAW (<code>Source/AudioJitterBuffer.h</code>).</p>
+<ul>
+<li>Só começa a tocar quando há na fila um bloco do MAME + um bloco do dispositivo + uma margem de segurança.</li>
+<li>Se faltar áudio, deixa um bloco em silêncio, aumenta a margem (até 80 ms) e volta a acumular.</li>
+<li>A cada 4 s observa o nível mínimo da fila; só se ele estiver claramente fora do alvo ajusta a velocidade de reprodução em ±500 ppm (0,9 cent) com interpolação Hermite. No restante do tempo copia as amostras 1:1.</li>
+<li>Os relógios medidos do MAME e da placa coincidem na média, então na prática o ajuste fica em 0 ppm.</li>
+</ul>
+<h3 id="pt-painel-artwork-do-mame">Painel (artwork do MAME)</h3>
+<ul>
+<li><code>Resources/artwork-src/cz101-panel.svg</code>: desenho do usuário, com os textos fixos do LCD e LEDs pintados removidos.</li>
+<li><code>tools/make_artwork.py</code>: renderiza o SVG e escreve <code>Resources/artwork/cz101/default.lay</code>, com as coordenadas de cada controle ligadas às entradas do driver (<code>kc9</code>–<code>kc15</code>, teclas <code>kc0</code>–<code>kc8</code>) e aos LEDs (<code>led_*</code>, <code>led_env*</code>, <code>led_tone*</code>).</li>
+<li>No projeto de desenvolvimento a arte é lida da pasta do projeto: editar o SVG, rodar o script e clicar em <strong>Reiniciar</strong>.</li>
+</ul>
+<h3 id="pt-librarian-de-timbres-sysex">Librarian de timbres (SysEx)</h3>
+<p>Protocolo da Casio (n = canal MIDI − 1; <code>pp</code> = programa: 60 área de som, 20–2F INTERNAL 1–16):</p>
+<pre><code>Pedido de envio (CZ → computador)
+  computador: F0 44 00 00 7n 10 pp     CZ: F0 44 00 00 7n 30
+  computador: 7n 31                     CZ: &lt;256 nibbles&gt; F7
+  computador: F7
+
+Pedido de recebimento (computador → CZ)
+  computador: F0 44 00 00 7n 20 pp     CZ: F0 44 00 00 7n 30
+  computador: &lt;256 nibbles&gt; F7          CZ: F7
+</code></pre>
+<ul>
+<li><code>Source/CzSysex.h</code> implementa o protocolo sem dependência do JUCE.</li>
+<li>Durante uma transferência o processor pausa o MIDI do host e desvia a saída do CZ para o librarian (<code>AbstractFifo</code>), rodando numa thread própria.</li>
+<li>O <code>.syx</code> padrão de 264 bytes enviado inteiro de uma vez também é aceito pelo firmware (resposta <code>F0 44 00 00 70 30 F7</code>).</li>
+</ul>
+<h3 id="pt-correções-à-documentação-pública-do-formato-de-timbre">Correções à documentação pública do formato de timbre</h3>
+<p>Referência usada: página "Casio CZ MIDI/SYSEX" em youngmonkey.ca. Conferido contra os 16 presets lidos do firmware e 100 arquivos <code>.syx</code> reais.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Documentação</th>
+<th>Comportamento real</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vibrato delay/rate/depth (3 bytes)</td>
+<td>valor, byte alto, byte baixo</td>
+<td>valor, byte <strong>baixo</strong>, byte <strong>alto</strong></td>
+</tr>
+<tr>
+<td>Vibrato delay 87</td>
+<td><code>67 01 7F</code></td>
+<td><code>57 01 7F</code> (erro de digitação)</td>
+</tr>
+<tr>
+<td>Nível do DCA</td>
+<td>linear, <code>127 × nível / 99</code></td>
+<td><code>nível + 28</code> (0 continua 0)</td>
+</tr>
+<tr>
+<td>Bit "nível descendo" (0x80 no rate)</td>
+<td>quando o nível desce</td>
+<td>também quando o nível alvo do passo é 0</td>
+</tr>
+<tr>
+<td>Detune fine</td>
+<td>30 → <code>1F</code></td>
+<td><code>fine + fine ÷ 15</code> (30 → <code>20</code>)</td>
+</tr>
+<tr>
+<td>Vibrato depth 0–31</td>
+<td><code>v, 00, v+1</code></td>
+<td>confirmado pelo firmware; alguns editores antigos gravavam <code>v, v, 00</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Layout confirmado da forma de onda (2 bytes): byte alto <code>[1ª forma 3][2ª forma 3][2ª ativa][0]</code>, byte baixo <code>[seletor 6–8: 2][modulação 3][000]</code>.</p>
+<h3 id="pt-conversão-das-fichas-pat">Conversão das fichas .PAT</h3>
+<ul>
+<li>132 fichas de texto digitadas à mão por diversos autores, em pelo menos oito layouts.</li>
+<li>O conversor reconhece cabeçalhos em linha, tabela ASCII, chave/valor e blocos DCO/DCW/DCA empilhados ou lado a lado, com envelopes em "99/85/s", "rate = 99, level = 21 (sus)", colunas ou linhas horizontais.</li>
+<li>Cada ficha é validada (faixas 0–99, até 8 passos, sustain/end) e codificada pelo codec verificado.</li>
+<li>Resultado: 104 convertidas em <code>CZPATCHES/czpats/SYX convertidos</code>, com <code>RELATORIO.md</code>; 28 de layout livre ficaram para conversão manual. Os originais não foram alterados.</li>
+</ul>
+<h3 id="pt-cartuchos-ra-3">Cartuchos RA-3</h3>
+<ul>
+<li><strong>Gravação pelo firmware.</strong> <code>tools/cz101_cart_builder</code> liga o CZ-101 emulado com um cartucho vazio, grava cada timbre por SysEx em CARTRIDGE n (programa <code>40</code>–<code>4F</code>) e confere lendo de volta. Ao desligar, o MAME grava a RAM do cartucho no arquivo. Depois religa com o arquivo e lê as 16 posições de novo. O formato interno do cartucho é, portanto, exatamente o que um CZ-101 grava.</li>
+<li><strong>Montagem do conjunto.</strong> <code>tools/make_cartridges.py</code> separa as pastas, chama o gerador para cada cartucho e escreve, para cada um, a lista posição → nome (o CZ-101 não guarda nomes de timbre) e o <code>INDICE.md</code>.</li>
+<li><strong>No app.</strong> Os cartuchos vão embutidos e são extraídos para <code>runtime/cartridges</code> só se ainda não existirem, para nunca apagar timbres gravados neles. O cartucho escolhido fica em <code>settings.xml</code>, é encaixado na partida (<code>-cart</code>) e trocado em funcionamento pela troca de mídia do motor.</li>
+<li><strong>Persistência.</strong> Trocar de cartucho grava o anterior no arquivo (o MAME retira a mídia antes de carregar outra). Depois de carregar um <code>.syx</code> num CARTRIDGE, o app reinsere o mesmo cartucho para gravar o arquivo na hora. Um WRITE feito no painel para o cartucho é gravado ao trocar de cartucho ou fechar o app.</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Cartucho</th>
+<th>Timbres</th>
+<th>Origem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01 CZ Pack 1</td>
+<td>16</td>
+<td>Coffeeshopped CZ Pack 1 (16 primeiros em ordem alfabética)</td>
+</tr>
+<tr>
+<td>02 RelaCZ</td>
+<td>16</td>
+<td>CZounds RelaCZ</td>
+</tr>
+<tr>
+<td>03–06 Italo DisCZo 1–4</td>
+<td>64</td>
+<td>CZounds Italo DisCZo</td>
+</tr>
+<tr>
+<td>07–12 CZ Pats 1–6</td>
+<td>96</td>
+<td>Fichas <code>.PAT</code> convertidas</td>
+</tr>
+<tr>
+<td>13 CZ Pats 7</td>
+<td>12</td>
+<td>8 fichas <code>.PAT</code> restantes + Stiff Bass, Toad Bass, Wist Pad e Yay Afterhit do CZ Pack 1</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="pt-estrutura-de-pastas-versão-personal">Estrutura de pastas (versão Personal)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Caminho</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CMakeLists.txt</code></td>
+<td>Plugin JUCE (Standalone/AU/VST3), dados embutidos, biblioteca <code>cz101_mame</code>, ferramenta de teste</td>
+</tr>
+<tr>
+<td><code>build.sh</code></td>
+<td>Build, assinatura ad-hoc e instalação dos plugins</td>
+</tr>
+<tr>
+<td><code>Source/PluginProcessor.*</code></td>
+<td>Motor, MIDI, áudio, librarian, NVRAM, trava de instância</td>
+</tr>
+<tr>
+<td><code>Source/PluginEditor.*</code></td>
+<td>Painel clicável, VU, luz de MIDI, menus de timbre, proporção da janela</td>
+</tr>
+<tr>
+<td><code>Source/AudioJitterBuffer.h</code></td>
+<td>Buffer de áudio entre MAME e dispositivo</td>
+</tr>
+<tr>
+<td><code>Source/CzSysex.h</code></td>
+<td>Protocolo SysEx da Casio</td>
+</tr>
+<tr>
+<td><code>Source/MidiByteAssembler.h</code></td>
+<td>Converte bytes do MIDI OUT em mensagens</td>
+</tr>
+<tr>
+<td><code>Source/FrontendStubs.cpp</code></td>
+<td>Stubs do frontend do MAME</td>
+</tr>
+<tr>
+<td><code>Engine/EmbeddedEmulatorEngine.*</code></td>
+<td>Motor do VES adaptado</td>
+</tr>
+<tr>
+<td><code>Embedded/roms/</code></td>
+<td><code>cz101.zip</code>, <code>hd44780.zip</code></td>
+</tr>
+<tr>
+<td><code>Resources/artwork-src/</code>, <code>Resources/artwork/</code></td>
+<td>SVG do painel e arte gerada</td>
+</tr>
+<tr>
+<td><code>Resources/plugins/</code></td>
+<td><code>boot.lua</code> e plugin <code>layout</code> do MAME</td>
+</tr>
+<tr>
+<td><code>tools/make_artwork.py</code></td>
+<td>Gera a arte do painel</td>
+</tr>
+<tr>
+<td><code>tools/czsyx.py</code>, <code>tools/czsyx_tables.py</code></td>
+<td>Codec de timbres</td>
+</tr>
+<tr>
+<td><code>tools/pat2syx.py</code></td>
+<td>Conversor de fichas <code>.PAT</code></td>
+</tr>
+<tr>
+<td><code>tools/cz101_sysex_test.cpp</code></td>
+<td>Teste do protocolo contra o firmware</td>
+</tr>
+<tr>
+<td><code>Embedded/cartridges/</code></td>
+<td>13 cartuchos RA-3 (<code>.bin</code>), listas de timbres (<code>.txt</code>) e <code>INDICE.md</code></td>
+</tr>
+<tr>
+<td><code>tools/cz101_cart_builder.cpp</code></td>
+<td>Grava um cartucho pelo firmware e verifica</td>
+</tr>
+<tr>
+<td><code>tools/make_cartridges.py</code></td>
+<td>Monta o conjunto de cartuchos a partir das pastas de timbres</td>
+</tr>
+<tr>
+<td><code>tools/build_docs.py</code></td>
+<td>Gera a página HTML bilíngue desta documentação</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="pt-como-compilar-e-usar">Como compilar e usar</h2>
+<pre><code class="language-sh">cd /Volumes/STORAGE/GITS/CZ101Studio-Personal
+./build.sh                                   # Standalone + AU + VST3, assina e instala
+cmake --build build --target cz101_sysex_test  # ferramenta de teste (opcional)
+
+python3 tools/make_artwork.py                # após editar o SVG do painel (depois ./build.sh)
+python3 tools/pat2syx.py PASTA_PAT PASTA_SAIDA
+python3 tools/czsyx.py dump TIMBRE.syx
+
+cmake --build build --target cz101_cart_builder
+python3 tools/make_cartridges.py             # recria os 13 cartuchos (depois ./build.sh)
+</code></pre>
+<p>Dependências: árvore do VES com o MAME 0.289 já compilado (<code>SUBTARGET=vesembedded</code>), JUCE 8.0.13, SDL3 estático do build do VES, Xcode (clang), CMake, Ninja e Google Chrome (só para gerar a arte).</p>
+<p>Dados em tempo de execução (Personal): <code>~/Library/Application Support/CZ101StudioPersonal/</code> (<code>runtime/</code>, <code>nvram/</code>); log em <code>~/Library/Logs/CZ101StudioPersonal.log</code>.</p>
+<h2 id="pt-limitações-conhecidas">Limitações conhecidas</h2>
+<ul>
+<li>POWER, pitch bend e volume do painel são apenas desenho (pitch bend funciona por MIDI).</li>
+<li>Uma instância do CZ-101 por processo (limitação do MAME).</li>
+<li>VST3: a entrega de SysEx depende do DAW (o Ableton Live não repassa SysEx a plugins). O librarian interno não depende disso.</li>
+<li>28 fichas <code>.PAT</code> de layout livre não convertidas automaticamente.</li>
+<li>O MAME marca a ROM de fonte do HD44780 como dump imperfeito; é apenas um aviso.</li>
+<li>O MAME entrega áudio em blocos de 20 ms, o que define a latência mínima (≈ 20–40 ms).</li>
+</ul>
+<h2 id="pt-créditos">Créditos</h2>
+<h3 id="pt-emulação-e-código-de-terceiros">Emulação e código de terceiros</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Autoria</th>
+<th>Licença</th>
+<th>Uso neste projeto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MAME 0.289</td>
+<td>MAMEdev e colaboradores</td>
+<td>GPL-2.0-or-later (projeto); arquivos com licenças próprias</td>
+<td>Toda a emulação do instrumento</td>
+</tr>
+<tr>
+<td>Driver Casio CZ-101 (<code>casio/cz101.cpp</code>)</td>
+<td>Dirk Best, Devin Acker</td>
+<td>BSD-3-Clause</td>
+<td>Máquina emulada</td>
+</tr>
+<tr>
+<td>Casio uPD933 (<code>sound/upd933.cpp</code>)</td>
+<td>Devin Acker</td>
+<td>BSD-3-Clause</td>
+<td>Chip de som</td>
+</tr>
+<tr>
+<td>Cartucho Casio RA-3 (<code>casio/ra3.cpp</code>)</td>
+<td>Devin Acker</td>
+<td>BSD-3-Clause</td>
+<td>Dispositivo do driver</td>
+</tr>
+<tr>
+<td>Hitachi HD44780 (<code>video/hd44780.cpp</code>)</td>
+<td>Sandro Ronco</td>
+<td>BSD-3-Clause</td>
+<td>Display LCD</td>
+</tr>
+<tr>
+<td>NEC uPD7810 (<code>cpu/upd7810</code>)</td>
+<td>Juergen Buchmueller</td>
+<td>BSD-3-Clause</td>
+<td>CPU que roda o firmware</td>
+</tr>
+<tr>
+<td>Portas e imagens MIDI (<code>bus/midi</code>, <code>imagedev/midiin</code>)</td>
+<td>R. Belmont, Aaron Giles</td>
+<td>BSD-3-Clause</td>
+<td>MIDI IN/OUT</td>
+</tr>
+<tr>
+<td>Gerenciador de som (<code>emu/sound.cpp</code>)</td>
+<td>O. Galibert, Aaron Giles</td>
+<td>BSD-3-Clause</td>
+<td>Saída de áudio</td>
+</tr>
+<tr>
+<td>Layout interno <code>cz101.lay</code></td>
+<td>colaboradores do MAME</td>
+<td>CC0-1.0</td>
+<td>Mapa de entradas e LEDs usado como referência</td>
+</tr>
+<tr>
+<td><code>boot.lua</code></td>
+<td>Miodrag Milanovic</td>
+<td>BSD-3-Clause</td>
+<td>Plugins Lua do MAME</td>
+</tr>
+<tr>
+<td>Plugin <code>layout</code> (<code>init.lua</code>)</td>
+<td>Carl</td>
+<td>BSD-3-Clause</td>
+<td>Scripts de layout</td>
+</tr>
+<tr>
+<td>Vintage Emulator Studio</td>
+<td>Autodafe (github.com/antoniograzioli/VintageEmulatorStudio)</td>
+<td>App: AGPL-3.0-only; integração MAME: BSD-3-Clause</td>
+<td>Motor embarcado, patches do MAME, build do MAME e do SDL3</td>
+</tr>
+<tr>
+<td>JUCE 8.0.13</td>
+<td>Raw Material Software (JUCE)</td>
+<td>AGPLv3 ou licença comercial JUCE</td>
+<td>Plugin, áudio, MIDI, interface</td>
+</tr>
+<tr>
+<td>SDL 3</td>
+<td>Sam Lantinga e colaboradores</td>
+<td>zlib</td>
+<td>Dependência das bibliotecas OSD do MAME</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="pt-firmware-documentação-e-timbres">Firmware, documentação e timbres</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Autoria</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Firmware do CZ-101 (ROMs)</td>
+<td>Casio Computer Co., Ltd.</td>
+<td>Executado pelo emulador; uso pessoal, não redistribuir</td>
+</tr>
+<tr>
+<td>ROM de caracteres do HD44780</td>
+<td>Hitachi (dump do acervo do MAME)</td>
+<td>Fonte do LCD</td>
+</tr>
+<tr>
+<td>"Casio CZ MIDI/SYSEX"</td>
+<td>Texto publicado em youngmonkey.ca (autor original não identificado na página)</td>
+<td>Base do protocolo e do formato de timbre</td>
+</tr>
+<tr>
+<td>Fichas <code>.PAT</code></td>
+<td>Miles Bader, Paul Boutin, Michael Schaeffer, Tom Benson, Wayne Wylupski, Truls Ellefsen, Robert Lansdale, Martin Sant, John Pritchard, J. Peter Alfke, Glenn Bruns, Brent Wilson, Alan Bland, revista Electronics &amp; Music Maker (set. 1986) e autores identificados só por e-mail</td>
+<td>Timbres convertidos para <code>.syx</code></td>
+</tr>
+<tr>
+<td>CZ Pack 1</td>
+<td>Coffeeshopped</td>
+<td>Timbres <code>.syx</code> de teste</td>
+</tr>
+<tr>
+<td>RelaCZ, Italo DisCZo</td>
+<td>CZounds</td>
+<td>Timbres <code>.syx</code> usados na validação do codec</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="pt-ferramentas">Ferramentas</h3>
+<ul>
+<li>Google Stitch: ferramenta usada pelo usuário para desenhar o painel.</li>
+<li>Google Chrome (headless): renderização do SVG do painel.</li>
+<li>Apple Xcode / clang, <code>codesign</code> e <code>auval</code>: compilação, assinatura e validação do AU.</li>
+<li>CMake e Ninja: sistema de build.</li>
+<li>Python e a biblioteca Python-Markdown: scripts de arte, codec, conversor e geração desta documentação em HTML.</li>
+<li>Homebrew: instalação de ferramentas de linha de comando.</li>
+<li>Fórum KVR Audio: relatos de usuários sobre o ruído de buffer no VES.</li>
+</ul>
+<h3 id="pt-autoria-deste-projeto">Autoria deste projeto</h3>
+<ul>
+<li>Walter Junior.</li>
+</ul>
+<h2 id="pt-aviso-legal">Aviso legal</h2>
+<ul>
+<li>Projeto de uso pessoal e sem fins comerciais.</li>
+<li>As ROMs do CZ-101 são propriedade da Casio. A versão Personal as embute no binário e <strong>não deve ser distribuída</strong>.</li>
+<li>Distribuir o código exige cumprir as licenças acima (GPL-2.0-or-later do MAME, AGPL-3.0 do VES/JUCE e as demais).</li>
+<li>Casio, CZ-101 e demais marcas pertencem aos seus donos; este projeto não é afiliado nem endossado por eles.</li>
+</ul></article>
+</div>
+<div class="layout" data-lang="en" hidden>
+  <nav class="toc" aria-label="Contents"><p>Contents</p><ol><li><a href="#en-overview">Overview</a></li>
+<li><a href="#en-architecture">Architecture</a></li>
+<li><a href="#en-timeline">Timeline</a></li>
+<li><a href="#en-bugs-and-limitations-fixed">Bugs and limitations fixed</a></li>
+<li><a href="#en-technical-solutions">Technical solutions</a></li>
+<li><a href="#en-folder-layout-personal-version">Folder layout (Personal version)</a></li>
+<li><a href="#en-building-and-using">Building and using</a></li>
+<li><a href="#en-known-limitations">Known limitations</a></li>
+<li><a href="#en-credits">Credits</a></li>
+<li><a href="#en-legal-notice">Legal notice</a></li></ol></nav>
+  <article lang="en"><p>An emulation of the Casio CZ-101 synthesizer (1984) as a macOS application and plugin, built on the embedded MAME 0.289 from the Vintage Emulator Studio project. Personal, non-commercial use.</p>
+<p>Period: September 2026. Platform: macOS on Apple Silicon (arm64).</p>
+<h2 id="en-overview">Overview</h2>
+<p>The goal was <strong>one unit per instrument</strong> instead of an emulator with dozens of machines: a program that runs only the CZ-101, receives MIDI, plays through the sound card and serves as a base for improving the interface and sound fidelity.</p>
+<p>The work produced two sibling projects:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Folder</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CZ-101 Studio</td>
+<td><code>/Volumes/STORAGE/GITS/CZ101Studio</code></td>
+<td>Development version: Standalone, reads ROMs from a folder, panel artwork reloads without rebuilding.</td>
+</tr>
+<tr>
+<td>CZ-101 Studio Personal</td>
+<td><code>/Volumes/STORAGE/GITS/CZ101Studio-Personal</code></td>
+<td>Playing version: ROMs, panel and scripts embedded in the binary; Standalone, AU and VST3; SysEx tone librarian; 13 RA-3 cartridges with 208 tones.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The instrument emulation is entirely MAME's: Casio's original firmware runs on the emulated NEC uPD7810 CPU, sound comes from the emulated Casio uPD933 chip and the display is the emulated Hitachi HD44780 controller. The projects bridge MAME, macOS audio/MIDI and the user interface.</p>
+<h2 id="en-architecture">Architecture</h2>
+<pre><code> MIDI (interface, DAW or panel keyboard)
+        │
+        ▼
+ CZ101Processor (JUCE) ── filters clock/active sensing, pauses during librarian jobs
+        │ sendMidiBytes
+        ▼
+ EmbeddedEmulatorEngine (MAME thread)
+   ├─ cz101 driver: uPD7810 + Casio firmware, uPD933 (sound), HD44780 (LCD), RA-3
+   ├─ MIDI IN port  ◄── byte queue
+   ├─ MIDI OUT port ──► byte queue ──► MidiByteAssembler (host) or librarian
+   ├─ audio (20 ms bursts) ──► queue ──► AudioJitterBuffer ──► sound card / DAW
+   ├─ video (rendered layout) ──► MameDisplay (clickable panel)
+   └─ NVRAM (internal memory) ──► file on exit / after writes / every 30 s
+</code></pre>
+<p>Key points:</p>
+<ul>
+<li><strong>MAME is not rebuilt.</strong> The projects link the static libraries and the driver object (<code>cz101.o</code>) already compiled in the VES tree. The engine's driver list was reduced to <code>cz101</code>.</li>
+<li><strong>Embedded engine.</strong> VES's <code>EmbeddedEmulatorEngine</code> was copied into each project and extended: MIDI output, on-demand NVRAM saving and an NVRAM save option.</li>
+<li><strong>Build.</strong> CMake + Ninja + JUCE 8.0.13. Code that includes MAME headers is compiled in its own object library with exactly the same defines as <code>libemu.a</code>.</li>
+</ul>
+<h2 id="en-timeline">Timeline</h2>
+<h3 id="en-1-first-unit-cz-101-studio">1. First unit: CZ-101 Studio</h3>
+<ul>
+<li>New JUCE project with the VES engine, a driver list containing only <code>cz101</code> and persistent NVRAM.</li>
+<li>Links directly against the prebuilt MAME libraries (no MAME rebuild).</li>
+<li>First window with MAME's internal layout, MIDI lamp, level meter and on-screen keyboard (later removed on request).</li>
+</ul>
+<h3 id="en-2-buffer-crackle">2. Buffer crackle</h3>
+<ul>
+<li>With a 512-sample buffer the sound crackled; at 64 it was clean. VES users reported the same symptom on the KVR Audio forum.</li>
+<li>Measured cause: MAME delivers audio in 50 Hz bursts (882 frames at 44.1 kHz every 20 ms) and the engine queue had no pre-roll. A 512-frame callback often found too little data and played silence.</li>
+<li>Fix: <code>AudioJitterBuffer</code> (see technical solutions). Measured at 512: from 4 underruns in 85 s to 0 in 90 s, 24–40 ms latency and no resampling.</li>
+</ul>
+<h3 id="en-3-macos-permissions-and-folders">3. macOS permissions and folders</h3>
+<ul>
+<li>macOS asked for Documents access after every build (the ad-hoc signature changes) and MAME blocked reading the ROM until answered.</li>
+<li>JUCE's <code>userApplicationDataDirectory</code> is <code>~/Library</code> on macOS, not <code>Application Support</code>.</li>
+<li>Fix: data in <code>~/Library/Application Support/CZ101Studio</code>, ROMs outside Documents, and the ROM path is no longer restored from JUCE's saved state.</li>
+</ul>
+<h3 id="en-4-panel">4. Panel</h3>
+<ul>
+<li>Vector panel drawn by the user in Google Stitch (1600 × 500 SVG).</li>
+<li><code>tools/make_artwork.py</code> renders the SVG with headless Google Chrome (3200 × 1000) and writes a MAME <code>default.lay</code> placing 51 clickable buttons, 49 keys, 35 LEDs and the emulated LCD on top.</li>
+<li>Refinements: overlapping text fixed, waveform icons redrawn and centered, labels moved below the blue rule, UP/DOWN words next to the pitch wheel removed (only the arrows remain) and window locked to the panel's proportions.</li>
+</ul>
+<h3 id="en-5-personal-version">5. Personal version</h3>
+<ul>
+<li>ROMs (<code>cz101.zip</code>, <code>hd44780.zip</code>), panel and MAME Lua scripts embedded with <code>juce_add_binary_data</code> and written to <code>~/Library/Application Support/CZ101StudioPersonal/runtime</code> on first run.</li>
+<li>Standalone, AU and VST3 formats; its own name and codes (<code>Wjst</code> / <code>Cz1p</code>).</li>
+<li>Instance guard: MAME is not re-entrant, so only one instance plays per process; others wait and take over when the first closes.</li>
+<li>Installation: AU copied to <code>~/Library/Audio/Plug-Ins/Components</code> (macOS ignores symlinked AUs); VST3 as a link to the external disk; ad-hoc signing of all bundles. The AU passes Apple's <code>auval</code>.</li>
+</ul>
+<h3 id="en-6-sysex-midi-out-and-internal-memory">6. SysEx, MIDI OUT and internal memory</h3>
+<ul>
+<li>The emulated CZ-101's MIDI output now reaches the host (it used to be discarded).</li>
+<li>In-plugin librarian using Casio's original handshake, because MIDI hosts drop the unterminated SysEx the protocol relies on.</li>
+<li><strong>Load .syx</strong> and <strong>Save .syx</strong> buttons targeting "Sound area" or "INTERNAL 1–16".</li>
+<li>NVRAM written right after loading into INTERNAL, every 30 s and on exit.</li>
+<li><code>cz101_sysex_test</code> tool validating everything against the real firmware.</li>
+</ul>
+<h3 id="en-7-tone-codec-and-pat-sheet-conversion">7. Tone codec and .PAT sheet conversion</h3>
+<ul>
+<li><code>tools/czsyx.py</code>: decodes and encodes tones; rebuilds the 16 factory presets byte for byte from panel values.</li>
+<li>Several details in the public format documentation were wrong and were corrected against the firmware (table below).</li>
+<li><code>tools/pat2syx.py</code>: converted 104 of 132 1980s/90s <code>.PAT</code> text sheets into <code>.syx</code>, with a report.</li>
+</ul>
+<h3 id="en-8-ra-3-cartridges">8. RA-3 cartridges</h3>
+<ul>
+<li>The CZ-101 takes Casio's RA-3 RAM cartridge, holding 16 tones (CARTRIDGE 1–16). MAME emulates it as a 4 KB file.</li>
+<li>13 cartridges built from the tone folders (208 tones), written by the CZ-101 firmware itself.</li>
+<li><strong>Cartridge</strong> selector at the top of the window: swaps the cartridge while the instrument runs; the panel's CARTRIDGE button plays the selected one.</li>
+<li><strong>Load .syx</strong> now offers CARTRIDGE 1–16, showing the tone name in each slot.</li>
+</ul>
+<h2 id="en-bugs-and-limitations-fixed">Bugs and limitations fixed</h2>
+<h3 id="en-compared-with-the-cz-101-running-in-vintage-emulator-studio">Compared with the CZ-101 running in Vintage Emulator Studio</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Problem in VES</th>
+<th>Evidence in the VES code</th>
+<th>Fix in CZ-101 Studio</th>
+<th>Verification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Crackle with large buffers (512+)</td>
+<td>Audio queue without pre-roll; MAME delivers 20 ms bursts</td>
+<td><code>AudioJitterBuffer</code> with pre-roll, adaptive margin and clock correction</td>
+<td>0 underruns in 90 s at 512 (was 4 in 85 s)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>SysEx tones never reach the synth</td>
+<td><code>isSupportedMidiForPrototype</code> only accepts Note, CC, Program Change and Pitch Bend</td>
+<td>All MIDI is passed to MAME except clock and active sensing</td>
+<td>Tone sent and read back identical</td>
+</tr>
+<tr>
+<td>3</td>
+<td>The synth cannot answer over MIDI</td>
+<td>Engine MIDI output port with an empty <code>write()</code></td>
+<td>Real output queue, delivered to the host or the librarian</td>
+<td>16 presets dumped through MIDI OUT</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Internal memory lost on every restart</td>
+<td>MAME run with <code>-nonvram_save</code> and a temporary NVRAM folder deleted at start</td>
+<td>Persistent NVRAM, saved on exit, after internal writes and every 30 s</td>
+<td>Tone in INTERNAL 1 preserved after restarting the engine</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Fixed 10 s wait before audio and MIDI</td>
+<td><code>getBootElapsedMs() &lt; 10000</code></td>
+<td>Released 2 s after the first video frame</td>
+<td>Log: "ready" 2–3 s after start</td>
+</tr>
+</tbody>
+</table></div>
+<p>Also avoided in the Personal version: a boot hang when the <code>hd44780</code> device ROM is missing or when macOS blocks reading the ROM folder, since the ROMs are embedded.</p>
+<h3 id="en-compared-with-the-original-mame-0289">Compared with the original MAME 0.289</h3>
+<ul>
+<li><strong>No CZ-101 driver bug was fixed.</strong> The driver works well in MAME; what changed is the integration.</li>
+<li><strong>NVRAM protected against abnormal exits.</strong> MAME only writes NVRAM on exit (<code>running_machine::nvram_save()</code> is private). The engine now writes it while running, with a copy of the same procedure using only the public NVRAM API.</li>
+<li><strong>Panel.</strong> MAME's internal CZ-101 layout is schematic (rectangles and text); it was replaced with full artwork using the same input bindings.</li>
+</ul>
+<h3 id="en-platform-problems-solved">Platform problems solved</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Documents access prompt blocking boot</td>
+<td>ROM read from a protected folder; ad-hoc signature changes every build</td>
+<td>ROMs in Application Support / embedded</td>
+</tr>
+<tr>
+<td>Data written to <code>~/Library/CZ101Studio</code></td>
+<td>JUCE's <code>userApplicationDataDirectory</code> is <code>~/Library</code> on macOS</td>
+<td>Explicit <code>Application Support</code> path</td>
+</tr>
+<tr>
+<td>AU invisible to hosts</td>
+<td>The Audio Unit registrar ignores symlinked <code>.component</code> bundles</td>
+<td>AU copied; VST3 stays a link</td>
+</tr>
+<tr>
+<td>AU rejected by the registrar</td>
+<td>Only the linker signed the binary; resources not sealed</td>
+<td><code>codesign --force --deep --sign -</code> on the bundles</td>
+</tr>
+<tr>
+<td>External librarians fail</td>
+<td>JUCE delivers unterminated SysEx via <code>handlePartialSysexMessage</code>, which hosts don't forward</td>
+<td>Librarian inside the plugin</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="en-technical-solutions">Technical solutions</h2>
+<h3 id="en-audiojitterbuffer">AudioJitterBuffer</h3>
+<p>Sits between MAME's audio queue and the sound card/DAW callback (<code>Source/AudioJitterBuffer.h</code>).</p>
+<ul>
+<li>Starts playing only when the queue holds one MAME burst + one device block + a safety margin.</li>
+<li>On an underrun it leaves one block silent, widens the margin (up to 80 ms) and re-primes.</li>
+<li>Every 4 s it checks the queue's lowest level; only when clearly off target does it nudge the playback ratio by ±500 ppm (0.9 cent) with Hermite interpolation. Otherwise samples are copied 1:1.</li>
+<li>The measured MAME and device clocks agree on average, so in practice the correction stays at 0 ppm.</li>
+</ul>
+<h3 id="en-panel-mame-artwork">Panel (MAME artwork)</h3>
+<ul>
+<li><code>Resources/artwork-src/cz101-panel.svg</code>: the user's drawing, with the static LCD text and painted LEDs removed.</li>
+<li><code>tools/make_artwork.py</code>: renders the SVG and writes <code>Resources/artwork/cz101/default.lay</code>, binding each control's coordinates to the driver inputs (<code>kc9</code>–<code>kc15</code>, keys <code>kc0</code>–<code>kc8</code>) and LEDs (<code>led_*</code>, <code>led_env*</code>, <code>led_tone*</code>).</li>
+<li>In the development project the artwork is read from the project folder: edit the SVG, run the script and press <strong>Restart</strong>.</li>
+</ul>
+<h3 id="en-tone-librarian-sysex">Tone librarian (SysEx)</h3>
+<p>Casio protocol (n = MIDI channel − 1; <code>pp</code> = program: 60 sound area, 20–2F INTERNAL 1–16):</p>
+<pre><code>Send request (CZ → computer)
+  computer: F0 44 00 00 7n 10 pp     CZ: F0 44 00 00 7n 30
+  computer: 7n 31                     CZ: &lt;256 nibbles&gt; F7
+  computer: F7
+
+Receive request (computer → CZ)
+  computer: F0 44 00 00 7n 20 pp     CZ: F0 44 00 00 7n 30
+  computer: &lt;256 nibbles&gt; F7          CZ: F7
+</code></pre>
+<ul>
+<li><code>Source/CzSysex.h</code> implements the protocol with no JUCE dependency.</li>
+<li>During a transfer the processor pauses host MIDI and diverts the CZ's output to the librarian (<code>AbstractFifo</code>), which runs on its own thread.</li>
+<li>The standard 264-byte <code>.syx</code> sent in one go is also accepted by the firmware (reply <code>F0 44 00 00 70 30 F7</code>).</li>
+</ul>
+<h3 id="en-corrections-to-the-public-tone-format-documentation">Corrections to the public tone format documentation</h3>
+<p>Reference: the "Casio CZ MIDI/SYSEX" page on youngmonkey.ca. Checked against the 16 presets read from the firmware and 100 real <code>.syx</code> files.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Documentation</th>
+<th>Actual behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vibrato delay/rate/depth (3 bytes)</td>
+<td>value, high byte, low byte</td>
+<td>value, <strong>low</strong> byte, <strong>high</strong> byte</td>
+</tr>
+<tr>
+<td>Vibrato delay 87</td>
+<td><code>67 01 7F</code></td>
+<td><code>57 01 7F</code> (typo)</td>
+</tr>
+<tr>
+<td>DCA level</td>
+<td>linear, <code>127 × level / 99</code></td>
+<td><code>level + 28</code> (0 stays 0)</td>
+</tr>
+<tr>
+<td>"Level coming down" bit (0x80 on rate)</td>
+<td>when the level goes down</td>
+<td>also when the step's target level is 0</td>
+</tr>
+<tr>
+<td>Detune fine</td>
+<td>30 → <code>1F</code></td>
+<td><code>fine + fine ÷ 15</code> (30 → <code>20</code>)</td>
+</tr>
+<tr>
+<td>Vibrato depth 0–31</td>
+<td><code>v, 00, v+1</code></td>
+<td>confirmed by the firmware; some old editors wrote <code>v, v, 00</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Confirmed waveform layout (2 bytes): high byte <code>[1st wave 3][2nd wave 3][2nd on][0]</code>, low byte <code>[6–8 selector 2][modulation 3][000]</code>.</p>
+<h3 id="en-pat-sheet-conversion">.PAT sheet conversion</h3>
+<ul>
+<li>132 text sheets typed by many authors, in at least eight layouts.</li>
+<li>The converter handles header rows, ASCII tables, key/value forms and stacked or side-by-side DCO/DCW/DCA blocks, with envelopes written as "99/85/s", "rate = 99, level = 21 (sus)", columns or horizontal rows.</li>
+<li>Each sheet is validated (0–99 ranges, up to 8 steps, sustain/end) and encoded with the verified codec.</li>
+<li>Result: 104 converted into <code>CZPATCHES/czpats/SYX convertidos</code>, with <code>RELATORIO.md</code>; 28 free-form sheets left for manual conversion. The originals were not modified.</li>
+</ul>
+<h3 id="en-ra-3-cartridges">RA-3 cartridges</h3>
+<ul>
+<li><strong>Written by the firmware.</strong> <code>tools/cz101_cart_builder</code> boots the emulated CZ-101 with a blank cartridge, writes each tone over SysEx to CARTRIDGE n (program <code>40</code>–<code>4F</code>) and reads it back. On power-off MAME writes the cartridge RAM to the file. It then boots again from the file and reads all 16 slots once more. The cartridge's internal format is therefore exactly what a CZ-101 stores.</li>
+<li><strong>Building the set.</strong> <code>tools/make_cartridges.py</code> splits the folders, runs the builder for each cartridge and writes a slot → name list for each one (the CZ-101 stores no tone names) plus <code>INDICE.md</code>.</li>
+<li><strong>In the app.</strong> Cartridges are embedded and unpacked to <code>runtime/cartridges</code> only when missing, so tones written into them are never overwritten. The selected cartridge is kept in <code>settings.xml</code>, inserted at boot (<code>-cart</code>) and swapped at runtime through the engine's media change.</li>
+<li><strong>Persistence.</strong> Swapping cartridges writes the previous one to its file (MAME unloads media before loading another). After loading a <code>.syx</code> into a CARTRIDGE slot the app re-inserts the same cartridge so the file is written immediately. A panel WRITE into the cartridge is saved when the cartridge is swapped or the app closes.</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Cartridge</th>
+<th>Tones</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01 CZ Pack 1</td>
+<td>16</td>
+<td>Coffeeshopped CZ Pack 1 (first 16 in alphabetical order)</td>
+</tr>
+<tr>
+<td>02 RelaCZ</td>
+<td>16</td>
+<td>CZounds RelaCZ</td>
+</tr>
+<tr>
+<td>03–06 Italo DisCZo 1–4</td>
+<td>64</td>
+<td>CZounds Italo DisCZo</td>
+</tr>
+<tr>
+<td>07–12 CZ Pats 1–6</td>
+<td>96</td>
+<td>Converted <code>.PAT</code> sheets</td>
+</tr>
+<tr>
+<td>13 CZ Pats 7</td>
+<td>12</td>
+<td>The remaining 8 <code>.PAT</code> sheets + Stiff Bass, Toad Bass, Wist Pad and Yay Afterhit from CZ Pack 1</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="en-folder-layout-personal-version">Folder layout (Personal version)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CMakeLists.txt</code></td>
+<td>JUCE plugin (Standalone/AU/VST3), embedded data, <code>cz101_mame</code> library, test tool</td>
+</tr>
+<tr>
+<td><code>build.sh</code></td>
+<td>Build, ad-hoc signing and plugin installation</td>
+</tr>
+<tr>
+<td><code>Source/PluginProcessor.*</code></td>
+<td>Engine, MIDI, audio, librarian, NVRAM, instance guard</td>
+</tr>
+<tr>
+<td><code>Source/PluginEditor.*</code></td>
+<td>Clickable panel, meter, MIDI lamp, tone menus, window proportions</td>
+</tr>
+<tr>
+<td><code>Source/AudioJitterBuffer.h</code></td>
+<td>Audio buffer between MAME and the device</td>
+</tr>
+<tr>
+<td><code>Source/CzSysex.h</code></td>
+<td>Casio SysEx protocol</td>
+</tr>
+<tr>
+<td><code>Source/MidiByteAssembler.h</code></td>
+<td>Turns MIDI OUT bytes into messages</td>
+</tr>
+<tr>
+<td><code>Source/FrontendStubs.cpp</code></td>
+<td>MAME frontend stubs</td>
+</tr>
+<tr>
+<td><code>Engine/EmbeddedEmulatorEngine.*</code></td>
+<td>Adapted VES engine</td>
+</tr>
+<tr>
+<td><code>Embedded/roms/</code></td>
+<td><code>cz101.zip</code>, <code>hd44780.zip</code></td>
+</tr>
+<tr>
+<td><code>Resources/artwork-src/</code>, <code>Resources/artwork/</code></td>
+<td>Panel SVG and generated artwork</td>
+</tr>
+<tr>
+<td><code>Resources/plugins/</code></td>
+<td>MAME <code>boot.lua</code> and <code>layout</code> plugin</td>
+</tr>
+<tr>
+<td><code>tools/make_artwork.py</code></td>
+<td>Generates the panel artwork</td>
+</tr>
+<tr>
+<td><code>tools/czsyx.py</code>, <code>tools/czsyx_tables.py</code></td>
+<td>Tone codec</td>
+</tr>
+<tr>
+<td><code>tools/pat2syx.py</code></td>
+<td><code>.PAT</code> sheet converter</td>
+</tr>
+<tr>
+<td><code>tools/cz101_sysex_test.cpp</code></td>
+<td>Protocol test against the firmware</td>
+</tr>
+<tr>
+<td><code>Embedded/cartridges/</code></td>
+<td>13 RA-3 cartridges (<code>.bin</code>), tone lists (<code>.txt</code>) and <code>INDICE.md</code></td>
+</tr>
+<tr>
+<td><code>tools/cz101_cart_builder.cpp</code></td>
+<td>Writes a cartridge through the firmware and verifies it</td>
+</tr>
+<tr>
+<td><code>tools/make_cartridges.py</code></td>
+<td>Builds the cartridge set from the tone folders</td>
+</tr>
+<tr>
+<td><code>tools/build_docs.py</code></td>
+<td>Generates the bilingual HTML page of this documentation</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="en-building-and-using">Building and using</h2>
+<pre><code class="language-sh">cd /Volumes/STORAGE/GITS/CZ101Studio-Personal
+./build.sh                                     # Standalone + AU + VST3, signs and installs
+cmake --build build --target cz101_sysex_test  # test tool (optional)
+
+python3 tools/make_artwork.py                  # after editing the panel SVG (then ./build.sh)
+python3 tools/pat2syx.py PAT_FOLDER OUTPUT_FOLDER
+python3 tools/czsyx.py dump TONE.syx
+
+cmake --build build --target cz101_cart_builder
+python3 tools/make_cartridges.py               # rebuilds the 13 cartridges (then ./build.sh)
+</code></pre>
+<p>Requirements: the VES tree with MAME 0.289 already built (<code>SUBTARGET=vesembedded</code>), JUCE 8.0.13, the static SDL3 from the VES build, Xcode (clang), CMake, Ninja and Google Chrome (artwork generation only).</p>
+<p>Runtime data (Personal): <code>~/Library/Application Support/CZ101StudioPersonal/</code> (<code>runtime/</code>, <code>nvram/</code>); log at <code>~/Library/Logs/CZ101StudioPersonal.log</code>.</p>
+<h2 id="en-known-limitations">Known limitations</h2>
+<ul>
+<li>POWER, pitch bend and volume on the panel are artwork only (pitch bend works over MIDI).</li>
+<li>One CZ-101 instance per process (a MAME limitation).</li>
+<li>VST3: SysEx delivery depends on the DAW (Ableton Live doesn't pass SysEx to plugins). The built-in librarian doesn't depend on it.</li>
+<li>28 free-form <code>.PAT</code> sheets were not converted automatically.</li>
+<li>MAME flags the HD44780 font ROM as an imperfect dump; it is only a warning.</li>
+<li>MAME delivers audio in 20 ms bursts, which sets the minimum latency (≈ 20–40 ms).</li>
+</ul>
+<h2 id="en-credits">Credits</h2>
+<h3 id="en-emulation-and-third-party-code">Emulation and third-party code</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Authors</th>
+<th>License</th>
+<th>Use in this project</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MAME 0.289</td>
+<td>MAMEdev and contributors</td>
+<td>GPL-2.0-or-later (project); individual file licenses</td>
+<td>All of the instrument emulation</td>
+</tr>
+<tr>
+<td>Casio CZ-101 driver (<code>casio/cz101.cpp</code>)</td>
+<td>Dirk Best, Devin Acker</td>
+<td>BSD-3-Clause</td>
+<td>Emulated machine</td>
+</tr>
+<tr>
+<td>Casio uPD933 (<code>sound/upd933.cpp</code>)</td>
+<td>Devin Acker</td>
+<td>BSD-3-Clause</td>
+<td>Sound chip</td>
+</tr>
+<tr>
+<td>Casio RA-3 cartridge (<code>casio/ra3.cpp</code>)</td>
+<td>Devin Acker</td>
+<td>BSD-3-Clause</td>
+<td>Driver device</td>
+</tr>
+<tr>
+<td>Hitachi HD44780 (<code>video/hd44780.cpp</code>)</td>
+<td>Sandro Ronco</td>
+<td>BSD-3-Clause</td>
+<td>LCD display</td>
+</tr>
+<tr>
+<td>NEC uPD7810 (<code>cpu/upd7810</code>)</td>
+<td>Juergen Buchmueller</td>
+<td>BSD-3-Clause</td>
+<td>CPU running the firmware</td>
+</tr>
+<tr>
+<td>MIDI ports and images (<code>bus/midi</code>, <code>imagedev/midiin</code>)</td>
+<td>R. Belmont, Aaron Giles</td>
+<td>BSD-3-Clause</td>
+<td>MIDI IN/OUT</td>
+</tr>
+<tr>
+<td>Sound manager (<code>emu/sound.cpp</code>)</td>
+<td>O. Galibert, Aaron Giles</td>
+<td>BSD-3-Clause</td>
+<td>Audio output</td>
+</tr>
+<tr>
+<td>Internal layout <code>cz101.lay</code></td>
+<td>MAME contributors</td>
+<td>CC0-1.0</td>
+<td>Input and LED map used as reference</td>
+</tr>
+<tr>
+<td><code>boot.lua</code></td>
+<td>Miodrag Milanovic</td>
+<td>BSD-3-Clause</td>
+<td>MAME Lua plugins</td>
+</tr>
+<tr>
+<td><code>layout</code> plugin (<code>init.lua</code>)</td>
+<td>Carl</td>
+<td>BSD-3-Clause</td>
+<td>Layout scripts</td>
+</tr>
+<tr>
+<td>Vintage Emulator Studio</td>
+<td>Autodafe (github.com/antoniograzioli/VintageEmulatorStudio)</td>
+<td>App: AGPL-3.0-only; MAME integration: BSD-3-Clause</td>
+<td>Embedded engine, MAME patches, MAME and SDL3 builds</td>
+</tr>
+<tr>
+<td>JUCE 8.0.13</td>
+<td>Raw Material Software (JUCE)</td>
+<td>AGPLv3 or JUCE commercial licence</td>
+<td>Plugin, audio, MIDI, interface</td>
+</tr>
+<tr>
+<td>SDL 3</td>
+<td>Sam Lantinga and contributors</td>
+<td>zlib</td>
+<td>Dependency of MAME's OSD libraries</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="en-firmware-documentation-and-tones">Firmware, documentation and tones</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Authors</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CZ-101 firmware (ROMs)</td>
+<td>Casio Computer Co., Ltd.</td>
+<td>Run by the emulator; personal use, do not redistribute</td>
+</tr>
+<tr>
+<td>HD44780 character ROM</td>
+<td>Hitachi (dump from the MAME archive)</td>
+<td>LCD font</td>
+</tr>
+<tr>
+<td>"Casio CZ MIDI/SYSEX"</td>
+<td>Text published on youngmonkey.ca (original author not named on the page)</td>
+<td>Basis for the protocol and tone format</td>
+</tr>
+<tr>
+<td><code>.PAT</code> sheets</td>
+<td>Miles Bader, Paul Boutin, Michael Schaeffer, Tom Benson, Wayne Wylupski, Truls Ellefsen, Robert Lansdale, Martin Sant, John Pritchard, J. Peter Alfke, Glenn Bruns, Brent Wilson, Alan Bland, Electronics &amp; Music Maker magazine (Sep 1986) and authors identified only by e-mail</td>
+<td>Tones converted to <code>.syx</code></td>
+</tr>
+<tr>
+<td>CZ Pack 1</td>
+<td>Coffeeshopped</td>
+<td>Test <code>.syx</code> tones</td>
+</tr>
+<tr>
+<td>RelaCZ, Italo DisCZo</td>
+<td>CZounds</td>
+<td><code>.syx</code> tones used to validate the codec</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="en-tools">Tools</h3>
+<ul>
+<li>Google Stitch: used by the user to design the panel.</li>
+<li>Google Chrome (headless): renders the panel SVG.</li>
+<li>Apple Xcode / clang, <code>codesign</code> and <code>auval</code>: compiling, signing and validating the AU.</li>
+<li>CMake and Ninja: build system.</li>
+<li>Python and the Python-Markdown library: artwork, codec and converter scripts, and generating this documentation as HTML.</li>
+<li>Homebrew: command-line tools.</li>
+<li>KVR Audio forum: user reports of the VES buffer crackle.</li>
+</ul>
+<h3 id="en-authorship-of-this-project">Authorship of this project</h3>
+<ul>
+<li>Walter Junior.</li>
+</ul>
+<h2 id="en-legal-notice">Legal notice</h2>
+<ul>
+<li>Personal, non-commercial project.</li>
+<li>The CZ-101 ROMs are Casio's property. The Personal version embeds them in the binary and <strong>must not be distributed</strong>.</li>
+<li>Distributing the code requires complying with the licenses above (MAME's GPL-2.0-or-later, the AGPL-3.0 of VES/JUCE and the others).</li>
+<li>Casio, CZ-101 and other trademarks belong to their owners; this project is not affiliated with or endorsed by them.</li>
+</ul></article>
+</div>
+
+<footer class="foot">
+  <span data-lang="pt">Projeto pessoal, não comercial. Casio e CZ-101 são marcas de seus donos; este projeto não é afiliado a eles.</span>
+  <span data-lang="en" hidden>Personal, non-commercial project. Casio and CZ-101 are trademarks of their owners; this project is not affiliated with them.</span>
+</footer>
+
+<script>
+(function () {
+  var KEY = "cz101-docs-lang";
+  function apply(lang) {
+    document.querySelectorAll("[data-lang]").forEach(function (el) { el.hidden = el.getAttribute("data-lang") !== lang; });
+    document.querySelectorAll("[data-set-lang]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-set-lang") === lang)); });
+    document.documentElement.lang = lang === "pt" ? "pt-BR" : "en";
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+  var initial = "pt";
+  try { var saved = localStorage.getItem(KEY); if (saved === "pt" || saved === "en") initial = saved; } catch (e) {}
+  document.querySelectorAll("[data-set-lang]").forEach(function (b) {
+    b.addEventListener("click", function () { apply(b.getAttribute("data-set-lang")); });
+  });
+  apply(initial);
+})();
+</script>

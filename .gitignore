@@ -1,0 +1,8 @@
+# build output
+build/
+build.log
+
+# local caches
+__pycache__/
+*.pyc
+.DS_Store
