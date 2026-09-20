@@ -39,6 +39,12 @@ public:
     ~CZ101Processor() override;
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
+    // O hospedeiro avisa aqui que vai renderizar fora do tempo real (bounce,
+    // exportação, congelamento de pista). Sem tratar isso o plugin devolvia
+    // silêncio: o MAME roda preso ao relógio de parede e a DAW pede blocos bem
+    // mais rápido que isso, então a fila nunca enchia.
+    void setNonRealtime (bool offline) noexcept override;
+
     void releaseResources() override;
     bool isBusesLayoutSupported (const BusesLayout&) const override;
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
@@ -106,6 +112,12 @@ private:
     std::atomic<int> currentBlockSize { 0 };
 
     AudioJitterBuffer jitterBuffer;
+
+    // Renderização fora do tempo real: espera o áudio em vez de desistir dele.
+    void renderizarOffline (ves::EmbeddedEmulatorEngine&, float* esquerda, float* direita, int numSamples);
+    std::atomic<bool> offline { false };
+    std::vector<ves::StereoFrame> baldeOffline;
+
     uint64_t jitterBufferGeneration = 0;
     std::vector<float> monoScratch;
 

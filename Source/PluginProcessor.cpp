@@ -1,4 +1,6 @@
 #include "PluginProcessor.h"
+#include <thread>
+#include <chrono>
 #include "PluginEditor.h"
 
 #include <cmath>
@@ -112,12 +114,86 @@ void CZ101Processor::prepareToPlay (double sampleRate, int samplesPerBlock)
     currentSampleRate = sampleRate;
     currentBlockSize.store (samplesPerBlock);
     jitterBuffer.prepare (sampleRate, samplesPerBlock);
+
+    baldeOffline.assign (static_cast<std::size_t> (juce::jmax (1024, samplesPerBlock)), {});
+
+    // Declarar a latência ao hospedeiro. Sem isto a DAW não tem o que compensar,
+    // e mexer no buffer dela não adianta -- o atraso não é dela.
+    //
+    // É o nível em que o buffer de jitter começa a tocar: uma rajada do MAME
+    // (ele atualiza os fluxos a 50 Hz, logo 20 ms), mais um bloco do hospedeiro,
+    // mais a margem de base. E mais 10 ms, que é a espera **média** por uma
+    // rajada -- meia rajada, igual em todas as máquinas.
+    //
+    // Falta a resposta da própria máquina, do byte de MIDI até o som, que varia
+    // de uma para outra e ainda não foi medida aqui. No Alpha Juno-1 ela deu
+    // 17 ms no total com esta parcela junto. Declarar a menos deixa a nota um
+    // pouco atrasada; declarar a mais a adiantaria, que é pior.
+    {
+        const auto rajada = sampleRate / 50.0;
+        const auto margemBase = juce::jmax (samplesPerBlock * 0.5, sampleRate * 0.005);
+        setLatencySamples (juce::roundToInt (rajada + samplesPerBlock + margemBase
+                                             + 0.010 * sampleRate));
+    }
+
     monoScratch.assign (static_cast<size_t> (juce::jmax (4096, samplesPerBlock)), 0.0f);
 
     if (changed)
         stopEngine();
 
     startEngineIfNeeded();
+}
+
+
+// Chamado pelo hospedeiro antes e depois de renderizar fora do tempo real.
+//
+// **O acelerador do MAME fica ligado de propósito.** Seria tentador soltá-lo
+// para o bounce correr mais rápido que o tempo real, mas a fila de áudio do
+// motor é um anel limitado que **descarta** quando enche: com o MAME solto e a
+// DAW consumindo um bloco por vez, a fila estouraria e o bounce sairia com
+// buracos. Então a renderização offline corre a 1x -- e sai completa.
+void CZ101Processor::setNonRealtime (bool emOffline) noexcept
+{
+    if (offline.exchange (emOffline) == emOffline)
+        return;
+
+    // O buffer de jitter existe para conciliar dois relógios soltos; offline só
+    // há um consumidor, e o que ele tiver guardado não vale para o outro modo.
+    jitterBuffer.reset();
+}
+
+// Espera o áudio em vez de devolver silêncio. Dormir aqui seria proibido no
+// tempo real -- e é por isso que este caminho só roda quando o hospedeiro avisou
+// que **não** é tempo real. O prazo existe para um bounce não pendurar a DAW
+// caso a máquina pare de produzir.
+void CZ101Processor::renderizarOffline (ves::EmbeddedEmulatorEngine& maquina,
+                               float* esquerda, float* direita, int numSamples)
+{
+    int escritos = 0;
+    const auto prazo = juce::Time::getMillisecondCounter() + 5000;
+
+    while (escritos < numSamples)
+    {
+        const auto pedido = static_cast<std::size_t> (numSamples - escritos);
+        const auto n = maquina.readAudioFrames (baldeOffline.data(),
+                                                juce::jmin (baldeOffline.size(), pedido));
+        for (std::size_t i = 0; i < n; ++i)
+        {
+            esquerda[escritos + int (i)] = baldeOffline[i].left;
+            direita[escritos + int (i)] = baldeOffline[i].right;
+        }
+        escritos += int (n);
+
+        if (n == 0)
+        {
+            if (juce::Time::getMillisecondCounter() > prazo)
+                break;
+            std::this_thread::sleep_for (std::chrono::milliseconds (1));
+        }
+    }
+
+    for (int i = escritos; i < numSamples; ++i)
+        esquerda[i] = direita[i] = 0.0f;
 }
 
 void CZ101Processor::releaseResources()
@@ -180,7 +256,11 @@ void CZ101Processor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiB
     auto* left = buffer.getWritePointer (0);
     auto* right = channels > 1 ? buffer.getWritePointer (1) : monoScratch.data();
     deviceFramesRendered.fetch_add (static_cast<uint64_t> (numSamples));
-    if (! jitterBuffer.render (*localEngine, left, right, numSamples))
+    if (offline.load())
+    {
+        renderizarOffline (*localEngine, left, right, numSamples);
+    }
+    else if (! jitterBuffer.render (*localEngine, left, right, numSamples))
     {
         buffer.clear();
         return;

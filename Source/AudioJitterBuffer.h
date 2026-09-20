@@ -32,7 +32,8 @@ public:
     {
         rate = sampleRate > 0.0 ? sampleRate : 44100.0;
         local.assign (static_cast<size_t> (std::max (16384, maxBlockSize * 4 + 16)), {});
-        margin = baseMargin (maxBlockSize);
+        floorMargin = baseMargin (maxBlockSize);
+        margin = floorMargin;
         reset();
     }
 
@@ -55,6 +56,7 @@ public:
 
         const auto burst = std::max (static_cast<double> (engine.diagnostics().mame_audio_callback_block_size.load()), rate / 50.0);
         const auto primeLevel = burst + numSamples + margin;
+        lastPrimeLevel = primeLevel;
 
         auto queued = static_cast<double> (engine.queuedAudioFrames());
         auto available = queued + static_cast<double> (count) - pos;
@@ -65,13 +67,31 @@ public:
             if (available < primeLevel)
                 return false;
 
+            // Start at the prime level, not at whatever happened to be queued.
+            // MAME runs free and may have produced well past the prime level by
+            // the time the first block is asked for; keeping that head start
+            // made the delay a lottery -- measured queue depths of 20, 25, 26
+            // and 41 ms across runs of the same build, with nothing else
+            // changed.  The excess here has never been played, so dropping it
+            // costs nothing and makes the latency the same every time.
+            if (available > primeLevel && queued > 0.0)
+            {
+                const auto excess = std::min (queued, available - primeLevel);
+                engine.discardOldestAudioFrames (static_cast<size_t> (excess));
+                queued = static_cast<double> (engine.queuedAudioFrames());
+                available = queued + static_cast<double> (count) - pos;
+            }
+
             primed = true;
             windowFrames = 0.0;
             windowMinSurplus = std::numeric_limits<double>::max();
         }
 
-        // Host stalled (window dragged, device paused...): drop back to the prime level.
-        if (available > primeLevel + rate * 0.25)
+        // Host stalled (window dragged, device paused...): drop back to the prime
+        // level.  The old trigger was a quarter of a second, which is five times
+        // the whole latency budget: anything that big had long since been felt as
+        // delay on every note.  Four bursts is still far outside normal jitter.
+        if (available > primeLevel + 4.0 * burst)
         {
             const auto excess = std::min (queued, available - primeLevel);
             engine.discardOldestAudioFrames (static_cast<size_t> (excess));
@@ -151,6 +171,12 @@ public:
     }
 
     // Any thread.
+    //
+    // What the host has to be told: the steady-state depth this buffer keeps
+    // between MAME's queue and the device callback.  It is not a constant -- the
+    // margin moves with how lumpy the host turns out to be -- so it is published
+    // and read, not computed twice.
+    double getPrimeFrames() const { return primeFrames.load(); }
     double getLatencyMs() const { return latencyFrames.load() * 1000.0 / rate; }
     double getMarginMs() const { return marginFrames.load() * 1000.0 / rate; }
     int getRatioPpm() const { return ratioPpm.load(); }
@@ -176,6 +202,7 @@ private:
     void publish (double availableFrames)
     {
         latencyFrames.store (static_cast<float> (availableFrames));
+        primeFrames.store (static_cast<float> (lastPrimeLevel));
         marginFrames.store (static_cast<float> (margin));
         ratioPpm.store (static_cast<int> (std::lround ((ratio - 1.0) * 1.0e6)));
     }
@@ -205,6 +232,15 @@ private:
         else
             targetRatio = 1.0;
 
+        // The margin grows on every underrun and used to stay there: one rough
+        // patch at start-up -- which is exactly when a DAW is busiest -- left the
+        // buffer holding up to 80 ms for the rest of the session, and that delay
+        // is felt on every note.  Give it back slowly when the queue has had room
+        // to spare for a whole window, so a genuinely lumpy host still keeps what
+        // it needs while a one-off hiccup costs seconds, not the session.
+        if (windowMinSurplus > margin * 1.5)
+            margin = std::max (floorMargin, margin * 0.8);
+
         if (targetRatio != 1.0)
             ratio = targetRatio;
 
@@ -218,11 +254,15 @@ private:
     double pos = 0.0;
     bool primed = false;
     double margin = 256.0;
+    double floorMargin = 256.0;
     double ratio = 1.0;
     double targetRatio = 1.0;
     double windowFrames = 0.0;
     double windowMinSurplus = std::numeric_limits<double>::max();
 
+    double lastPrimeLevel = 0.0;
+
+    std::atomic<float> primeFrames { 0.0f };
     std::atomic<float> latencyFrames { 0.0f };
     std::atomic<float> marginFrames { 0.0f };
     std::atomic<int> ratioPpm { 0 };
