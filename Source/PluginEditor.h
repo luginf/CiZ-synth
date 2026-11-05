@@ -1,8 +1,10 @@
 #pragma once
 
 #include "PluginProcessor.h"
+#include "ToneEditor.h"
 
 #include <functional>
+#include <map>
 #include <set>
 
 // Shows the frame MAME renders from the cz101 layout (LCD + front panel) and
@@ -90,9 +92,16 @@ public:
 
     void paint (juce::Graphics&) override;
     void resized() override;
+    bool keyPressed (const juce::KeyPress&) override;
+    bool keyStateChanged (bool isKeyDown) override;
+    void focusLost (FocusChangeType) override;
+    void parentHierarchyChanged() override;
 
 private:
     void timerCallback() override;
+    void setupStandaloneWindow();
+    void showOptionsMenu();
+    void releaseKeyboardNotes();
     void chooseRomsFolder();
     void enableNewMidiInputs();
 
@@ -103,8 +112,15 @@ private:
     LevelMeter meter;
     MidiLamp midiLamp;
     juce::Label statusLabel;
+    juce::TextButton toneEditorButton { "Tone editor" };
+    std::unique_ptr<ToneEditorWindow> toneEditorWindow;
+    juce::TextButton optionsButton { "Options" };
     juce::TextButton romsButton { "ROMs..." };
-    juce::TextButton restartButton { "Reiniciar" };
+    juce::TextButton restartButton { "Restart" };
+
+    bool windowConfigured = false;
+    int keyboardOctave = 3;                 // C3 = MIDI note 48 (CZ-101 lowest key)
+    std::map<int, int> heldKeys;            // key code -> MIDI note being held
 
     std::unique_ptr<juce::FileChooser> chooser;
     std::set<juce::String> knownMidiInputs;

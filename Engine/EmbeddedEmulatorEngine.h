@@ -211,6 +211,12 @@ struct EngineDiagnostics
 	std::atomic<std::uint64_t> video_target_pixel_aspect_x1000 { 0 };
 };
 
+// Opaque pointer to the live running_machine (set by the MAME thread while it runs).
+struct LiveMachine
+{
+	std::atomic<void *> machine { nullptr };
+};
+
 struct EmbeddedEmulatorEngineSettings
 {
 	std::string rom_path;
@@ -247,6 +253,14 @@ public:
 	bool stopAndJoin(std::chrono::milliseconds timeout);
 
 	void sendMidiBytes(const std::uint8_t *data, std::size_t size);
+	// Direct access to a shared RAM block of the emulated machine ("mainram", "subram"...).
+	// Returns the number of bytes copied; 0 if the machine is not running or the tag is unknown.
+	// The emulated CPUs keep running, so reads/writes are not synchronised with them.
+	std::size_t readRam(const char *tag, std::size_t offset, std::uint8_t *dst, std::size_t count);
+	std::size_t writeRam(const char *tag, std::size_t offset, const std::uint8_t *src, std::size_t count);
+	std::size_t ramSize(const char *tag);
+	// Bytes sent by the emulated machine on its MIDI OUT (single consumer only).
+	std::size_t readMidiOutput(std::uint8_t *data, std::size_t max_bytes);
 	void resetAudioWindow();
 	void resetMidiTimingWindow();
 	void drainAudio(AudioStats &stats);

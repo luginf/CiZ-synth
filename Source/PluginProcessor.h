@@ -4,6 +4,8 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 
 #include "AudioJitterBuffer.h"
+#include "StereoChorus.h"
+#include "CzTone.h"
 #include "EmbeddedEmulatorEngine.h"
 
 #include <atomic>
@@ -33,7 +35,31 @@ class CZ101Processor final : public juce::AudioProcessor,
                              private juce::Timer
 {
 public:
-    static constexpr const char* driverName = "cz101";
+    // MAME driver in use: "cz101" or "cz1".  Persisted in settings.xml.
+    juce::String getMachine() const { return machine; }
+    juce::String getMachineLabel() const { return machine == "cz1" ? "CZ-1" : "CZ-101"; }
+    void setMachine (const juce::String& driver);
+
+    // SysEx for the synth, queued from the message thread and sent to MAME from the
+    // audio thread (the only producer of the engine's MIDI queue).  Keep messages
+    // small: the engine queue holds 8192 bytes.
+    void sendSysex (const std::vector<std::uint8_t>& message);
+
+    // Direct access to the CZ-1's internal tone memory (emulated RAM, no MIDI involved).
+    // Bodies: subram[128 * slot]; names: mainram[2304 + 16 * slot]; slot 0-63 = A-1..H-8.
+    bool isToneMemoryAvailable() const;
+    bool readInternalTone (int slot, cz::Tone& tone) const;
+    bool writeInternalTone (int slot, const cz::Tone& tone);
+    // Program change on MIDI channel 1: makes the firmware reload that internal tone.
+    void recallInternalTone (int slot);
+
+    // Latest tone dump the synth sent on MIDI OUT (panel "MIDI SAVE").
+    bool getLatestDump (cz::Dump& out) const;
+    int getDumpGeneration() const { return dumpGeneration.load(); }
+
+    // Software stereo chorus, applied to the CZ-1 only (MAME does not emulate it).
+    bool isChorusEnabled() const { return chorusEnabled.load(); }
+    void setChorusEnabled (bool enabled) { chorusEnabled.store (enabled); }
 
     CZ101Processor();
     ~CZ101Processor() override;
@@ -89,12 +115,17 @@ public:
     uint64_t getMidiMessagesReceived() const { return midiMessagesReceived.load(); }
     float takePeak (int channel);
 
+    // Notes played from the computer keyboard (editor) are merged into the MIDI input.
+    juce::MidiKeyboardState keyboardState;
+
 private:
     void timerCallback() override;
+    void captureMidiOutput();
     void startEngineIfNeeded();
     void stopEngine();
     void updateBootState();
     bool hasRomSet (const juce::File& directory) const;
+    juce::File buildRomStage (const juce::File& romsDirectory) const;
     juce::File getSettingsFile() const;
     void saveSettings() const;
 
@@ -108,6 +139,10 @@ private:
     juce::String lastError;
 
     juce::String romsPath;
+    juce::String machine { "cz101" };
+    std::atomic<bool> machineIsCz1 { false };
+    std::atomic<bool> chorusEnabled { true };
+    StereoChorus chorus;
     double currentSampleRate = 0.0;
     std::atomic<int> currentBlockSize { 0 };
 
@@ -126,6 +161,16 @@ private:
     double rateLogLastTime = 0.0;
     uint64_t rateLogLastMame = 0;
     uint64_t rateLogLastDevice = 0;
+
+    // Bytes the synth sent on MIDI OUT, collected on the message thread (single consumer).
+    juce::AbstractFifo sysexFifo { 16384 };
+    std::vector<std::uint8_t> sysexStorage = std::vector<std::uint8_t> (16384);
+    mutable juce::CriticalSection dumpLock;
+    cz::Dump latestDump;
+    std::atomic<int> dumpGeneration { 0 };
+
+    std::vector<std::uint8_t> midiOutCapture;
+    juce::uint32 midiOutLastByteMs = 0;
 
     std::atomic<uint32_t> lastMidiInMs { 0 };
     std::atomic<uint64_t> midiMessagesReceived { 0 };

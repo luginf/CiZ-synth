@@ -14,13 +14,13 @@ void dispatch_embedded_layout_script(layout_file &file, const char *script);
 #include <utility>
 #include <vector>
 
-const char *emulator_info::get_appname() { return "CZ101Studio"; }
+const char *emulator_info::get_appname() { return "CiZ-synth"; }
 const char *emulator_info::get_appname_lower() { return "ves"; }
 const char *emulator_info::get_configname() { return "ves"; }
 const char *emulator_info::get_copyright() { return ""; }
 const char *emulator_info::get_copyright_info() { return ""; }
 const char *emulator_info::get_bare_build_version() { return "0.289"; }
-const char *emulator_info::get_build_version() { return "0.289 CZ101Studio"; }
+const char *emulator_info::get_build_version() { return "0.289 CiZ-synth"; }
 void emulator_info::display_ui_chooser(running_machine &) {}
 int emulator_info::start_frontend(emu_options &, osd_interface &, std::vector<std::string> &) { return 0; }
 int emulator_info::start_frontend(emu_options &, osd_interface &, int, char *[]) { return 0; }

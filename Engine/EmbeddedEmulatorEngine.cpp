@@ -33,12 +33,14 @@
 #include <thread>
 #include <vector>
 
-// CZ-101 Studio: single-machine build.  Only the CZ-101 driver is linked.
+// CiZ-synth: only the CZ-101 and CZ-1 drivers are linked.
+GAME_EXTERN(cz1);
 GAME_EXTERN(cz101);
 
 const game_driver *const driver_list::s_drivers_sorted[] =
 {
 	&GAME_NAME(___empty),
+	&GAME_NAME(cz1),
 	&GAME_NAME(cz101),
 };
 
@@ -129,6 +131,7 @@ struct queued_midi_byte
 };
 
 using midi_byte_queue = spsc_ring<queued_midi_byte, 8192>;
+using midi_out_queue = spsc_ring<std::uint8_t, 16384>;
 using audio_frame_queue = spsc_ring<StereoFrame, 262144>;
 using mouse_event_queue = spsc_ring<EmbeddedMouseEvent, 256>;
 using floppy_request_queue = spsc_ring<FloppyChangeRequest, 2>;
@@ -376,20 +379,28 @@ private:
 	EngineDiagnostics &m_diag;
 };
 
+// Bytes the emulated synth sends on its MIDI OUT.  MAME's thread is the only
+// producer; the host reads them through EmbeddedEmulatorEngine::readMidiOutput.
 class memory_midi_output_port : public osd::midi_output_port
 {
 public:
-	void write(std::uint8_t) override {}
+	explicit memory_midi_output_port(midi_out_queue &queue) : m_queue(queue) {}
+
+	void write(std::uint8_t byte) override { m_queue.push(byte); }
+
+private:
+	midi_out_queue &m_queue;
 };
 
 class embedded_osd : public osd_common_t
 {
 public:
-	embedded_osd(osd_options &options, midi_byte_queue &midi, audio_frame_queue &audio, mouse_event_queue &mouse,
+	embedded_osd(osd_options &options, midi_byte_queue &midi, midi_out_queue &midi_out, audio_frame_queue &audio, mouse_event_queue &mouse,
 		floppy_request_queue &floppy_requests, floppy_result_queue &floppy_results, embedded_video_bridge &video, EngineDiagnostics &diag)
 		: osd_common_t(options)
 		, m_options(options)
 		, m_midi_queue(midi)
+		, m_midi_out_queue(midi_out)
 		, m_audio_queue(audio)
 		, m_mouse_queue(mouse)
 		, m_floppy_requests(floppy_requests)
@@ -535,7 +546,7 @@ public:
 	std::unique_ptr<osd::midi_output_port> create_midi_output(std::string_view) override
 	{
 		m_diag.midi_output_open_count.fetch_add(1, std::memory_order_relaxed);
-		return std::make_unique<memory_midi_output_port>();
+		return std::make_unique<memory_midi_output_port>(m_midi_out_queue);
 	}
 
 	std::vector<osd::midi_port_info> list_midi_ports() override
@@ -920,6 +931,7 @@ private:
 
 	osd_options &m_options;
 	midi_byte_queue &m_midi_queue;
+	midi_out_queue &m_midi_out_queue;
 	audio_frame_queue &m_audio_queue;
 	mouse_event_queue &m_mouse_queue;
 	floppy_request_queue &m_floppy_requests;
@@ -1033,9 +1045,9 @@ private:
 class embedded_machine_manager : public machine_manager
 {
 public:
-		embedded_machine_manager(emu_options &options, osd_interface &osd, EngineDiagnostics &diag, std::string driver_name)
+		embedded_machine_manager(emu_options &options, osd_interface &osd, EngineDiagnostics &diag, std::string driver_name, LiveMachine &live)
 		: machine_manager(options, osd), m_driver_name(std::move(driver_name))
-		, m_diag(diag), m_plugin_host(*this)
+		, m_diag(diag), m_live(live), m_plugin_host(*this)
 	{
 	}
 
@@ -1056,9 +1068,11 @@ public:
 		machine_config config(driver, m_options);
 		running_machine machine(config, *this);
 		set_machine(&machine);
+		m_live.machine.store(&machine);
 		m_diag.machine_started_ms.store(steadyMs(), std::memory_order_relaxed);
 		m_diag.machine_started.fetch_add(1, std::memory_order_relaxed);
 		const int result = machine.run(false);
+		m_live.machine.store(nullptr);
 		m_diag.machine_exited.fetch_add(1, std::memory_order_relaxed);
 		m_plugin_host.set_machine(nullptr);
 		set_machine(nullptr);
@@ -1090,6 +1104,7 @@ public:
 private:
 	std::string m_driver_name;
 	EngineDiagnostics &m_diag;
+	LiveMachine &m_live;
 	embedded_plugin_host m_plugin_host;
 	std::unique_ptr<ui_manager> m_ui;
 };
@@ -1153,6 +1168,46 @@ struct EmbeddedEmulatorEngine::Impl
 		floppy_results.clear();
 		floppy_change_pending.store(false, std::memory_order_release);
 		return exited;
+	}
+
+	memory_share *findShare(const char *tag)
+	{
+		auto *const machine = static_cast<running_machine *>(live_machine.machine.load());
+		return machine != nullptr ? machine->root_device().memshare(tag) : nullptr;
+	}
+
+	std::size_t ramSize(const char *tag)
+	{
+		auto *const share = findShare(tag);
+		return share != nullptr ? share->bytes() : 0;
+	}
+
+	std::size_t readRam(const char *tag, std::size_t offset, std::uint8_t *dst, std::size_t count)
+	{
+		auto *const share = findShare(tag);
+		if (share == nullptr || offset >= share->bytes())
+			return 0;
+		count = std::min<std::size_t>(count, share->bytes() - offset);
+		std::memcpy(dst, static_cast<const std::uint8_t *>(share->ptr()) + offset, count);
+		return count;
+	}
+
+	std::size_t writeRam(const char *tag, std::size_t offset, const std::uint8_t *src, std::size_t count)
+	{
+		auto *const share = findShare(tag);
+		if (share == nullptr || offset >= share->bytes())
+			return 0;
+		count = std::min<std::size_t>(count, share->bytes() - offset);
+		std::memcpy(static_cast<std::uint8_t *>(share->ptr()) + offset, src, count);
+		return count;
+	}
+
+	std::size_t readMidiOutput(std::uint8_t *data, std::size_t max_bytes)
+	{
+		std::size_t count = 0;
+		while (count < max_bytes && midi_out_queue.pop(data[count]))
+			++count;
+		return count;
 	}
 
 	void sendMidiBytes(const std::uint8_t *data, std::size_t size)
@@ -1380,7 +1435,7 @@ private:
 	int runMameThread()
 	{
 		osd_options options;
-		embedded_osd osd(options, midi_queue, audio_queue, mouse_queue, floppy_requests, floppy_results, video_bridge, diag);
+		embedded_osd osd(options, midi_queue, midi_out_queue, audio_queue, mouse_queue, floppy_requests, floppy_results, video_bridge, diag);
 		osd.register_options();
 
 		std::vector<std::string> args {
@@ -1471,7 +1526,7 @@ private:
 		diag.mame_audio_latency_us.store(static_cast<std::uint64_t>(std::max(options.audio_latency(), 0.0f) * 1000.0f), std::memory_order_relaxed);
 		diag.effective_mame_sample_rate.store(static_cast<std::uint64_t>(std::max(options.sample_rate(), 0)), std::memory_order_relaxed);
 
-		embedded_machine_manager manager(options, osd, diag, settings.driver_name);
+		embedded_machine_manager manager(options, osd, diag, settings.driver_name, live_machine);
 		manager.start_http_server();
 		const int result = manager.execute();
 		return result;
@@ -1491,7 +1546,9 @@ private:
 	}
 
 	EmbeddedEmulatorEngineSettings settings;
+	LiveMachine live_machine;
 	midi_byte_queue midi_queue;
+	midi_out_queue midi_out_queue;
 	audio_frame_queue audio_queue;
 	mouse_event_queue mouse_queue;
 	floppy_request_queue floppy_requests;
@@ -1529,6 +1586,26 @@ bool EmbeddedEmulatorEngine::stopAndJoin(std::chrono::milliseconds timeout)
 void EmbeddedEmulatorEngine::sendMidiBytes(const std::uint8_t *data, std::size_t size)
 {
 	m_impl->sendMidiBytes(data, size);
+}
+
+std::size_t EmbeddedEmulatorEngine::readRam(const char *tag, std::size_t offset, std::uint8_t *dst, std::size_t count)
+{
+	return m_impl->readRam(tag, offset, dst, count);
+}
+
+std::size_t EmbeddedEmulatorEngine::writeRam(const char *tag, std::size_t offset, const std::uint8_t *src, std::size_t count)
+{
+	return m_impl->writeRam(tag, offset, src, count);
+}
+
+std::size_t EmbeddedEmulatorEngine::ramSize(const char *tag)
+{
+	return m_impl->ramSize(tag);
+}
+
+std::size_t EmbeddedEmulatorEngine::readMidiOutput(std::uint8_t *data, std::size_t max_bytes)
+{
+	return m_impl->readMidiOutput(data, max_bytes);
 }
 
 void EmbeddedEmulatorEngine::resetAudioWindow()

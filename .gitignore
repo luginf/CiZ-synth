@@ -1,5 +1,6 @@
 # build output
 build/
+build-linux/
 build.log
 
 # local caches

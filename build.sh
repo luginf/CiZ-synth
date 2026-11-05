@@ -1,5 +1,5 @@
 #!/bin/sh
-# Builds CZ-101 Studio (Standalone .app). Everything stays on the external disk.
+# Builds CiZ-synth (Standalone .app). Everything stays on the external disk.
 set -eu
 
 root=$(cd "$(dirname "$0")" && pwd)
@@ -16,8 +16,8 @@ cmake -S "$root" -B "$build" -G Ninja \
     -DCMAKE_OSX_ARCHITECTURES=arm64 \
     -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
 
-cmake --build "$build" --target CZ101Studio_Standalone
+cmake --build "$build" --target CiZSynth_Standalone
 
-app="$build/CZ101Studio_artefacts/Release/Standalone/CZ-101 Studio.app"
+app="$build/CiZSynth_artefacts/Release/Standalone/CiZ-synth.app"
 echo
 echo "App: $app"

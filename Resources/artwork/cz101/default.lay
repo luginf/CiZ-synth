@@ -26,7 +26,7 @@
 		<disk state="1"><bounds x="2.5" y="2.5" width="5" height="5" /><color red="0.3" green="1" blue="0.3" /></disk>
 	</element>
 
-	<view name="CZ-101 Studio">
+	<view name="CiZ-synth">
 		<element ref="panel"><bounds x="0" y="0" width="1600" height="500" /></element>
 		<screen index="0" blend="alpha"><bounds x="663" y="92" width="184" height="36" /></screen>
 

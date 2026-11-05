@@ -1,4 +1,4 @@
-# CZ-101 Studio
+# CiZ-synth
 
 Wrapper de uma máquina só: o driver `cz101` do MAME 0.289 embarcado num app JUCE.
 MIDI entra pela interface MIDI, o som sai pela placa de áudio.
@@ -25,10 +25,10 @@ Para mudar o driver ou o chip de som (`src/mame/casio/cz101.cpp`,
 ./build.sh
 ```
 
-Gera `build/CZ101Studio_artefacts/Release/Standalone/CZ-101 Studio.app`.
+Gera `build/CiZSynth_artefacts/Release/Standalone/CiZ-synth.app`.
 
 ## Dados em tempo de execução
 
 - ROMs: `~/Documents/VES-ROMs` (precisa de `cz101.zip` e `hd44780.zip`); dá para trocar no botão **ROMs...**
-- Patches internos (NVRAM): `~/Library/Application Support/CZ101Studio/nvram/cz101`
-- Configuração: `~/Library/Application Support/CZ101Studio/settings.xml`
+- Patches internos (NVRAM): `~/Library/Application Support/CiZ-synth/nvram/cz101`
+- Configuração: `~/Library/Application Support/CiZ-synth/settings.xml`

@@ -293,6 +293,20 @@ CZ101Editor::CZ101Editor (CZ101Processor& p)
     statusLabel.setFont (juce::FontOptions (13.0f));
     addAndMakeVisible (statusLabel);
 
+    setWantsKeyboardFocus (true);
+
+    toneEditorButton.onClick = [this]
+    {
+        if (toneEditorWindow == nullptr)
+            toneEditorWindow = std::make_unique<ToneEditorWindow> (processor);
+        toneEditorWindow->setVisible (true);
+        toneEditorWindow->toFront (true);
+    };
+    addAndMakeVisible (toneEditorButton);
+
+    optionsButton.onClick = [this] { showOptionsMenu(); };
+    addAndMakeVisible (optionsButton);
+
     romsButton.onClick = [this] { chooseRomsFolder(); };
     romsButton.setTooltip (processor.getRomsDirectory().getFullPathName());
     addAndMakeVisible (romsButton);
@@ -301,7 +315,7 @@ CZ101Editor::CZ101Editor (CZ101Processor& p)
     addAndMakeVisible (restartButton);
 
     constrainer.aspect = [this] { return display.getPanelAspect(); };
-    constrainer.setSizeLimits (720, 250, 3400, 1300);
+    constrainer.setSizeLimits (1000, 330, 3400, 1300);
     setConstrainer (&constrainer);
     setResizable (true, true);
     setSize (1400, PanelConstrainer::heightForWidth (1400, 3.2));
@@ -313,6 +327,132 @@ CZ101Editor::CZ101Editor (CZ101Processor& p)
 CZ101Editor::~CZ101Editor()
 {
     stopTimer();
+    releaseKeyboardNotes();
+}
+
+//==============================================================================
+// Computer keyboard as a piano: the middle letter row is the white keys and the
+// row above the black keys (Ableton/Reaper layout).  The characters depend on
+// the keyboard layout, so French AZERTY gets its own table.  Left/Right arrows
+// shift the octave.
+namespace
+{
+const char* keyboardRows()
+{
+    const auto language = juce::SystemStats::getUserLanguage();
+    return (language == "fr" || language == "be") ? "qzsedftgyhujkolpm" : "awsedftgyhujkolp;";
+}
+}
+
+bool CZ101Editor::keyPressed (const juce::KeyPress& key)
+{
+    if (key == juce::KeyPress::leftKey || key == juce::KeyPress::rightKey)
+    {
+        releaseKeyboardNotes();
+        keyboardOctave = juce::jlimit (0, 8, keyboardOctave + (key == juce::KeyPress::rightKey ? 1 : -1));
+        return true;
+    }
+
+    return key.getModifiers().isCommandDown() ? false : juce::String (keyboardRows()).containsChar (key.getTextCharacter());
+}
+
+bool CZ101Editor::keyStateChanged (bool)
+{
+    bool changed = false;
+    const juce::String rows (keyboardRows());
+
+    for (int i = 0; i < rows.length(); ++i)
+    {
+        const int code = static_cast<int> (rows[i]);
+        const bool down = juce::KeyPress::isKeyCurrentlyDown (code);
+        const auto held = heldKeys.find (code);
+
+        if (down && held == heldKeys.end())
+        {
+            const int note = juce::jlimit (0, 127, keyboardOctave * 12 + 12 + i);
+            heldKeys[code] = note;
+            processor.keyboardState.noteOn (1, note, 0.8f);
+            changed = true;
+        }
+        else if (! down && held != heldKeys.end())
+        {
+            processor.keyboardState.noteOff (1, held->second, 0.0f);
+            heldKeys.erase (held);
+            changed = true;
+        }
+    }
+
+    return changed;
+}
+
+void CZ101Editor::focusLost (FocusChangeType)
+{
+    releaseKeyboardNotes();
+}
+
+void CZ101Editor::releaseKeyboardNotes()
+{
+    for (const auto& held : heldKeys)
+        processor.keyboardState.noteOff (1, held.second, 0.0f);
+    heldKeys.clear();
+}
+
+//==============================================================================
+void CZ101Editor::parentHierarchyChanged()
+{
+    setupStandaloneWindow();
+}
+
+// Standalone only: use the OS title bar, and move JUCE's own "Options" button
+// (which lives in its custom title bar) into the header.
+void CZ101Editor::setupStandaloneWindow()
+{
+    auto* holder = standaloneHolder();
+    auto* window = dynamic_cast<juce::DocumentWindow*> (getTopLevelComponent());
+    if (holder == nullptr || window == nullptr || windowConfigured)
+        return;
+
+    windowConfigured = true;
+    for (auto* child : window->getChildren())
+        if (auto* button = dynamic_cast<juce::TextButton*> (child))
+            if (button != &optionsButton && button->getButtonText() == "Options")
+                button->setVisible (false);
+
+    window->setUsingNativeTitleBar (true);
+    grabKeyboardFocus();
+}
+
+void CZ101Editor::showOptionsMenu()
+{
+    auto* holder = standaloneHolder();
+    if (holder == nullptr)
+        return;
+
+    juce::PopupMenu menu;
+    menu.addItem (1, "Audio/MIDI Settings...");
+    menu.addSeparator();
+    menu.addItem (5, "Machine: CZ-101", true, processor.getMachine() == "cz101");
+    menu.addItem (6, "Machine: CZ-1", true, processor.getMachine() == "cz1");
+    menu.addItem (7, "Stereo chorus (CZ-1, software)", processor.getMachine() == "cz1", processor.isChorusEnabled());
+    menu.addSeparator();
+    menu.addItem (2, "Save current state...");
+    menu.addItem (3, "Load a saved state...");
+
+    menu.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (&optionsButton),
+                        [this, holder] (int result)
+                        {
+                            switch (result)
+                            {
+                                case 1: holder->showAudioSettingsDialog(); break;
+                                case 2: holder->askUserToSaveState(); break;
+                                case 3: holder->askUserToLoadState(); break;
+                                case 5: processor.setMachine ("cz101"); repaint(); break;
+                                case 6: processor.setMachine ("cz1"); repaint(); break;
+                                case 7: processor.setChorusEnabled (! processor.isChorusEnabled()); break;
+                                default: break;
+                            }
+                            grabKeyboardFocus();
+                        });
 }
 
 void CZ101Editor::paint (juce::Graphics& g)
@@ -327,7 +467,7 @@ void CZ101Editor::paint (juce::Graphics& g)
     g.setFont (juce::FontOptions (20.0f, juce::Font::bold));
     g.drawText ("CASIO", header.removeFromLeft (84).withTrimmedLeft (14), juce::Justification::centredLeft);
     g.setColour (czBlue);
-    g.drawText ("CZ-101", header.removeFromLeft (90), juce::Justification::centredLeft);
+    g.drawText (processor.getMachineLabel(), header.removeFromLeft (90), juce::Justification::centredLeft);
 }
 
 void CZ101Editor::resized()
@@ -339,6 +479,10 @@ void CZ101Editor::resized()
     restartButton.setBounds (header.removeFromRight (84));
     header.removeFromRight (6);
     romsButton.setBounds (header.removeFromRight (74));
+    header.removeFromRight (6);
+    optionsButton.setBounds (header.removeFromRight (74));
+    header.removeFromRight (6);
+    toneEditorButton.setBounds (header.removeFromRight (96));
     header.removeFromRight (12);
 
     meter.setBounds (header.removeFromRight (160).reduced (0, 4));
@@ -371,7 +515,7 @@ void CZ101Editor::timerCallback()
 
 void CZ101Editor::chooseRomsFolder()
 {
-    chooser = std::make_unique<juce::FileChooser> ("Pasta com cz101.zip", processor.getRomsDirectory());
+    chooser = std::make_unique<juce::FileChooser> ("Folder containing " + processor.getMachine() + ".zip", processor.getRomsDirectory());
     chooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
                           [this] (const juce::FileChooser& fc)
                           {
