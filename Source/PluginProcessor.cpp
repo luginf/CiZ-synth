@@ -46,6 +46,12 @@ juce::File appDataDirectory()
 // Folder holding the bundled plugins/ and artwork/ directories.
 juce::File bundledResourcesDirectory()
 {
+    // Plugin: the host is the "application", so look next to the plugin library,
+    // in <bundle>/Contents/<arch>/lib -> <bundle>/Contents/Resources.
+    if (! juce::JUCEApplicationBase::isStandaloneApp())
+        return juce::File::getSpecialLocation (juce::File::currentExecutableFile)
+            .getParentDirectory().getParentDirectory().getChildFile ("Resources");
+
     const auto app = juce::File::getSpecialLocation (juce::File::currentApplicationFile);
 #if JUCE_MAC
     return app.getChildFile ("Contents").getChildFile ("Resources");

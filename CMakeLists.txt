@@ -60,7 +60,7 @@ juce_add_plugin(CiZSynth
     EDITOR_WANTS_KEYBOARD_FOCUS TRUE
     PLUGIN_MANUFACTURER_CODE Wjst
     PLUGIN_CODE Cz11
-    FORMATS Standalone)
+    FORMATS Standalone VST3)
 
 # Files that include MAME headers get exactly the defines libemu.a was built with.
 set(MAME_SOURCES
@@ -170,6 +170,18 @@ add_custom_command(TARGET CiZSynth_Standalone POST_BUILD
             "${CMAKE_CURRENT_SOURCE_DIR}/Resources/plugins" "${RESOURCES_DEST}/plugins"
     COMMAND "${CMAKE_COMMAND}" -E copy_directory
             "${CMAKE_CURRENT_SOURCE_DIR}/Resources/artwork" "${RESOURCES_DEST}/artwork")
+
+# The VST3 bundle carries its own copy: CiZ-synth.vst3/Contents/Resources.
+if(APPLE)
+    set(VST3_RESOURCES_DEST "$<TARGET_BUNDLE_CONTENT_DIR:CiZSynth_VST3>/Resources")
+else()
+    set(VST3_RESOURCES_DEST "$<TARGET_FILE_DIR:CiZSynth_VST3>/../Resources")
+endif()
+add_custom_command(TARGET CiZSynth_VST3 POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/Resources/plugins" "${VST3_RESOURCES_DEST}/plugins"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/Resources/artwork" "${VST3_RESOURCES_DEST}/artwork")
 
 # Headless probe (Linux): boots a machine without audio and talks SysEx over MIDI.
 if(NOT APPLE)
