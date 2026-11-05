@@ -84,6 +84,10 @@ ToneEditor::ToneEditor (CZ101Processor& p) : processor (p)
         }
     }
 
+    addAndMakeVisible (envGraph);
+    addAndMakeVisible (waveGraph1);
+    addAndMakeVisible (waveGraph2);
+
     rawEditor.setMultiLine (true);
     rawEditor.setFont (juce::FontOptions (juce::Font::getDefaultMonospacedFontName(), 13.0f, juce::Font::plain));
     rawEditor.addListener (this);
@@ -100,7 +104,7 @@ ToneEditor::ToneEditor (CZ101Processor& p) : processor (p)
     addAndMakeVisible (status);
 
     refreshSlotList();
-    setSize (640, 1090);
+    setSize (1000, 1090);
     startTimerHz (10);
 }
 
@@ -109,6 +113,16 @@ ToneEditor::~ToneEditor() { stopTimer(); }
 void ToneEditor::resized()
 {
     auto area = getLocalBounds().reduced (12);
+    {
+        auto graphs = area.removeFromRight (340);
+        area.removeFromRight (12);
+        graphs.removeFromTop (60);
+        envGraph.setBounds (graphs.removeFromTop (260));
+        graphs.removeFromTop (10);
+        waveGraph1.setBounds (graphs.removeFromTop (170));
+        graphs.removeFromTop (10);
+        waveGraph2.setBounds (graphs.removeFromTop (170));
+    }
     help.setBounds (area.removeFromTop (54));
     area.removeFromTop (6);
 
@@ -219,6 +233,8 @@ void ToneEditor::loadSlotIntoControls()
         paramSliders[i].setValue (cz::simpleParams()[i].get (tone), juce::dontSendNotification);
         paramSliders[i].setEnabled (present);
     }
+    waveGraph1.setWaves (cz::waveform (tone, 0, 0), cz::waveform (tone, 0, 1), "Line 1 waves (solid: 1st, dashed: 2nd)");
+    waveGraph2.setWaves (cz::waveform (tone, 1, 0), cz::waveform (tone, 1, 1), "Line 2 waves (solid: 1st, dashed: 2nd)");
     updatingControls = false;
     loadEnvelopeIntoControls();
     updatingControls = true;
@@ -258,6 +274,7 @@ void ToneEditor::loadEnvelopeIntoControls()
         rateSliders[static_cast<size_t> (i)].setEnabled (active);
         levelSliders[static_cast<size_t> (i)].setEnabled (active);
     }
+    envGraph.setEnvelope (env, currentEnvKind(), present);
     for (auto* c : std::initializer_list<juce::Component*> { &endBox, &susBox, &envBox })
         c->setEnabled (present);
     updatingControls = wasUpdating;

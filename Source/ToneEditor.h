@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ToneGraphs.h"
 #include "CzTone.h"
 #include "PluginProcessor.h"
 
@@ -51,6 +52,8 @@ private:
     juce::ComboBox envBox, endBox, susBox;
     std::array<juce::Label, 8> stepLabels;
     std::array<juce::Slider, 8> rateSliders, levelSliders;
+    EnvelopeGraph envGraph;
+    WaveGraph waveGraph1, waveGraph2;
     std::array<juce::Slider, 16> paramSliders;
     std::array<juce::Label, 16> paramLabels;
     juce::TextEditor rawEditor;
